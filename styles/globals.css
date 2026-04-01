@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: #ffffff;
+    color: #1a1a1a;
+  }
+}
+
+@layer utilities {
+  .dhl-yellow {
+    background-color: #FFCC00;
+  }
+  .dhl-red {
+    background-color: #D40511;
+  }
+  .text-dhl-yellow {
+    color: #FFCC00;
+  }
+  .text-dhl-red {
+    color: #D40511;
+  }
+}
