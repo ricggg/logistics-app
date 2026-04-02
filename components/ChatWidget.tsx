@@ -132,7 +132,9 @@ export default function ChatWidget() {
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`h-2 w-2 rounded-full ${
-                        isLoading ? "bg-yellow-400 animate-pulse" : "bg-green-400"
+                        isLoading
+                          ? "bg-yellow-400 animate-pulse"
+                          : "bg-green-400"
                       }`}
                     />
                     <p className="text-xs text-red-100">
@@ -255,7 +257,8 @@ export default function ChatWidget() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message..."
                 disabled={isLoading}
-                className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 disabled:opacity-50 transition-all"
+                style={{ color: "#111827" }}
+                className="flex-1 rounded-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 disabled:opacity-50 transition-all"
               />
               <button
                 type="submit"
