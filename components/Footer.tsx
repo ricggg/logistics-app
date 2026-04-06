@@ -1,11 +1,11 @@
 // components/Footer.tsx
 import Link from "next/link";
-import { Package, ExternalLink, Mail, Phone, Clock, MapPin } from "lucide-react";
+import { Package, Mail, Phone, Clock, MapPin, Award } from "lucide-react";
 
-// Custom SVG social icons — no dependency on removed lucide branded icons
+// Custom SVG social icons
 function FacebookIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
     </svg>
   );
@@ -13,25 +13,25 @@ function FacebookIcon() {
 
 function TwitterIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
-      <path d="M4 4l16 16M4 20L20 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+      <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z" />
     </svg>
   );
 }
 
 function InstagramIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
     </svg>
   );
 }
 
 function LinkedinIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
       <rect x="2" y="9" width="4" height="12" />
       <circle cx="4" cy="4" r="2" />
@@ -40,22 +40,22 @@ function LinkedinIcon() {
 }
 
 const socialLinks = [
-  { icon: FacebookIcon, label: "Facebook", href: "#" },
-  { icon: TwitterIcon, label: "Twitter / X", href: "#" },
-  { icon: InstagramIcon, label: "Instagram", href: "#" },
-  { icon: LinkedinIcon, label: "LinkedIn", href: "#" },
+  { icon: FacebookIcon, label: "Facebook", href: "https://facebook.com" },
+  { icon: TwitterIcon, label: "Twitter", href: "https://twitter.com" },
+  { icon: InstagramIcon, label: "Instagram", href: "https://instagram.com" },
+  { icon: LinkedinIcon, label: "LinkedIn", href: "https://linkedin.com" },
 ];
 
 export default function Footer() {
   return (
     <footer className="bg-[#1a1a1a] text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
 
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="bg-[#D40511] px-3 py-1.5 rounded">
+              <div className="bg-[#D40511] px-3 py-1.5 rounded shadow-md">
                 <span className="text-white font-black text-xl tracking-tighter">
                   SWIFT
                 </span>
@@ -64,19 +64,26 @@ export default function Footer() {
                 XPRESS
               </span>
             </Link>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Global logistics delivered with precision. We connect businesses
-              and individuals across the world with speed and reliability.
+            <p className="text-sm text-gray-400 leading-relaxed mb-5">
+              Trusted global logistics partner connecting businesses worldwide with speed, reliability, and precision since 2010.
             </p>
 
+            {/* Certifications */}
+            <div className="flex items-center gap-2 mb-5">
+              <Award size={16} className="text-[#FFCC00]" />
+              <span className="text-xs text-gray-400">ISO 9001 Certified</span>
+            </div>
+
             {/* Social links */}
-            <div className="flex items-center gap-3 mt-5">
+            <div className="flex items-center gap-3">
               {socialLinks.map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
-                  className="w-8 h-8 bg-gray-700 hover:bg-[#FFCC00] hover:text-[#1a1a1a] text-gray-300 rounded flex items-center justify-center transition-colors duration-200"
+                  className="w-9 h-9 bg-gray-800 hover:bg-[#FFCC00] hover:text-[#1a1a1a] text-gray-400 rounded-md flex items-center justify-center transition-all duration-200"
                 >
                   <Icon />
                 </a>
@@ -89,20 +96,20 @@ export default function Footer() {
             <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">
               Services
             </h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2.5 text-sm">
               {[
                 "Express Delivery",
                 "International Shipping",
-                "Freight Forwarding",
-                "Warehousing",
-                "Supply Chain",
+                "Air Freight",
+                "Ocean Freight",
+                "Warehousing Solutions",
+                "Supply Chain Management",
               ].map((s) => (
                 <li key={s}>
                   <a
-                    href="#"
-                    className="hover:text-[#FFCC00] transition-colors duration-200 flex items-center gap-1.5"
+                    href="#services"
+                    className="hover:text-[#FFCC00] transition-colors duration-200"
                   >
-                    <ExternalLink size={11} className="opacity-50" />
                     {s}
                   </a>
                 </li>
@@ -115,20 +122,20 @@ export default function Footer() {
             <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">
               Quick Links
             </h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2.5 text-sm">
               {[
                 { label: "Track Shipment", href: "/track" },
-                { label: "Get a Quote", href: "#" },
-                { label: "Schedule Pickup", href: "#" },
-                { label: "Find a Location", href: "#" },
-                { label: "Contact Support", href: "#contact" },
+                { label: "Get a Quote", href: "#contact" },
+                { label: "Schedule Pickup", href: "#contact" },
+                { label: "Customer Support", href: "#contact" },
+                { label: "Careers", href: "#" },
+                { label: "Partner With Us", href: "#contact" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link
                     href={l.href}
-                    className="hover:text-[#FFCC00] transition-colors duration-200 flex items-center gap-1.5"
+                    className="hover:text-[#FFCC00] transition-colors duration-200"
                   >
-                    <ExternalLink size={11} className="opacity-50" />
                     {l.label}
                   </Link>
                 </li>
@@ -139,46 +146,50 @@ export default function Footer() {
           {/* Contact */}
           <div>
             <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">
-              Contact
+              Contact Us
             </h4>
-            <ul className="space-y-3 text-sm text-gray-400">
-              <li className="flex items-center gap-2">
-                <Phone size={13} className="text-[#FFCC00] shrink-0" />
-                +1 (800) 225-5345
+            <ul className="space-y-3.5 text-sm text-gray-400">
+              <li className="flex items-start gap-2.5">
+                <MapPin size={16} className="text-[#FFCC00] shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  1250 Distribution Drive<br />
+                  Atlanta, GA 30318, USA
+                </span>
               </li>
-              <li className="flex items-center gap-2">
-                <Mail size={13} className="text-[#FFCC00] shrink-0" />
-                support@swiftxpress.com
+              <li className="flex items-center gap-2.5">
+                <Phone size={16} className="text-[#FFCC00] shrink-0" />
+                <a href="tel:+18002255345" className="hover:text-[#FFCC00] transition-colors">
+                  +1 (800) 225-5345
+                </a>
               </li>
-              <li className="flex items-center gap-2">
-                <Clock size={13} className="text-[#FFCC00] shrink-0" />
-                Mon–Fri: 8am – 8pm EST
+              <li className="flex items-center gap-2.5">
+                <Mail size={16} className="text-[#FFCC00] shrink-0" />
+                <a href="mailto:support@swiftxpress.com" className="hover:text-[#FFCC00] transition-colors">
+                  support@swiftxpress.com
+                </a>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin size={13} className="text-[#FFCC00] shrink-0" />
-                24/7 Online Tracking
-              </li>
-              <li className="flex items-center gap-2">
-                <Package size={13} className="text-[#FFCC00] shrink-0" />
-                All Shipment Types Covered
+              <li className="flex items-center gap-2.5">
+                <Clock size={16} className="text-[#FFCC00] shrink-0" />
+                Mon–Fri: 8am – 8pm EST<br />
+                <span className="text-xs text-gray-500">24/7 Online Support</span>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-gray-700 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
-          <p>© 2026 SwiftXpress Logistics. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-gray-300 transition-colors">
+        <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <p>© 2024 SwiftXpress Logistics. All rights reserved.</p>
+          <div className="flex items-center gap-5">
+            <Link href="#" className="hover:text-gray-300 transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:text-gray-300 transition-colors">
+            </Link>
+            <Link href="#" className="hover:text-gray-300 transition-colors">
               Terms of Service
-            </a>
-            <a href="#" className="hover:text-gray-300 transition-colors">
-              Cookie Policy
-            </a>
+            </Link>
+            <Link href="#" className="hover:text-gray-300 transition-colors">
+              Sitemap
+            </Link>
           </div>
         </div>
       </div>
