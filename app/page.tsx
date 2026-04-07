@@ -141,7 +141,7 @@ const testimonials = [
   {
     name: "Sarah Johnson",
     role: "E-commerce Director, RetailPlus",
-    text: "SwiftXpress transformed our delivery operations. Delivery complaints dropped by 80% in the first month alone.",
+    text: "Trac Global Logistics transformed our delivery operations. Delivery complaints dropped by 80% in the first month alone.",
     rating: 5,
     image:
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face&q=80",
@@ -334,12 +334,8 @@ export default function HomePage() {
 
       {/* ══════════════════════════════════════
           HERO
-          Busy premium warehouse interior —
-          industrial, powerful, trustworthy
       ══════════════════════════════════════ */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-
-        {/* Background: high-volume warehouse interior */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
@@ -347,11 +343,7 @@ export default function HomePage() {
               "url('https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1800&h=1000&fit=crop&q=90')",
           }}
         />
-
-        {/* Left-heavy dark overlay so headline reads perfectly */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/92 via-black/75 to-black/30" />
-
-        {/* Bottom fade into stats bar */}
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#D40511] to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -361,7 +353,6 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              {/* Trust badges */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -376,7 +367,6 @@ export default function HomePage() {
                 </span>
               </motion.div>
 
-              {/* Headline */}
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -390,7 +380,6 @@ export default function HomePage() {
                 On-Time. Every Time.
               </motion.h1>
 
-              {/* Subheadline */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -398,11 +387,10 @@ export default function HomePage() {
                 className="text-gray-200 text-lg mb-8 leading-relaxed max-w-xl"
               >
                 From our high-volume distribution centres to your customer's
-                door — SwiftXpress delivers with speed, precision, and full
-                cargo visibility across 220+ countries.
+                door — Trac Global Logistics delivers with speed, precision, and
+                full cargo visibility across 220+ countries.
               </motion.p>
 
-              {/* Tracking form */}
               <motion.form
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -414,7 +402,7 @@ export default function HomePage() {
                   <Search size={18} className="text-gray-400 shrink-0" />
                   <input
                     type="text"
-                    placeholder="Enter tracking number (e.g. SWX-2024-001)..."
+                    placeholder="Enter your tracking number..."
                     value={trackingInput}
                     onChange={(e) => setTrackingInput(e.target.value)}
                     className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
@@ -429,7 +417,6 @@ export default function HomePage() {
                 </button>
               </motion.form>
 
-              {/* Trust microcopy */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -666,16 +653,16 @@ export default function HomePage() {
               viewport={{ once: true }}
             >
               <span className="text-[#D40511] text-sm font-black uppercase tracking-widest">
-                About SwiftXpress
+                About Trac Global Logistics
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-2 mb-5">
                 Trusted by 10,000+ Businesses Worldwide
               </h2>
               <p className="text-gray-600 leading-relaxed mb-5">
-                Since 2010, SwiftXpress has been at the forefront of global
-                logistics innovation. We combine cutting-edge technology with a
-                human touch to deliver packages safely and on time — every
-                single time.
+                Since 2010, Trac Global Logistics has been at the forefront of
+                global logistics innovation. We combine cutting-edge technology
+                with a human touch to deliver packages safely and on time —
+                every single time.
               </p>
               <ul className="space-y-3 mb-8">
                 {[
@@ -716,7 +703,6 @@ export default function HomePage() {
               </a>
             </motion.div>
 
-            {/* Image grid */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -838,16 +824,14 @@ export default function HomePage() {
                 quote.
               </p>
 
-              {/* Contact image */}
               <div className="rounded-xl overflow-hidden mb-8 shadow-md">
                 <img
                   src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&h=400&fit=crop&q=80"
-                  alt="Logistics operations team"
+                  alt="Trac Global Logistics operations team"
                   className="w-full h-56 object-cover"
                 />
               </div>
 
-              {/* Contact details */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-10 h-10 bg-[#D40511] rounded-lg flex items-center justify-center shrink-0">
@@ -870,10 +854,10 @@ export default function HomePage() {
                   <div>
                     <p className="font-bold text-gray-900">Email Support</p>
                     <a
-                      href="mailto:support@swiftxpress.com"
+                      href="mailto:support@tracgloballogistics.com"
                       className="text-[#D40511] font-semibold hover:underline"
                     >
-                      support@swiftxpress.com
+                      support@tracgloballogistics.com
                     </a>
                   </div>
                 </div>
@@ -972,15 +956,11 @@ export default function HomePage() {
                   >
                     <option value="">Select a service</option>
                     <option value="express">Express Delivery</option>
-                    <option value="international">
-                      International Shipping
-                    </option>
+                    <option value="international">International Shipping</option>
                     <option value="air">Air Freight</option>
                     <option value="ocean">Ocean Freight</option>
                     <option value="warehousing">Warehousing</option>
-                    <option value="supply-chain">
-                      Supply Chain Solutions
-                    </option>
+                    <option value="supply-chain">Supply Chain Solutions</option>
                   </select>
                 </div>
                 <div>
@@ -1113,8 +1093,8 @@ export default function HomePage() {
               Ready to Ship with Confidence?
             </h2>
             <p className="text-red-100 mb-8 text-lg max-w-2xl mx-auto">
-              Join 10,000+ businesses who trust SwiftXpress for their global
-              logistics needs. Get your free quote in under 60 seconds.
+              Join 10,000+ businesses who trust Trac Global Logistics for their
+              global logistics needs. Get your free quote in under 60 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

@@ -88,7 +88,7 @@ export default function TrackPage() {
                 />
                 <input
                   type="text"
-                  placeholder="e.g. SWX-2026-DEMO01"
+                  placeholder="Enter your tracking number"
                   value={trackingNumber}
                   onChange={(e) => {
                     setTrackingNumber(e.target.value.toUpperCase());
@@ -130,17 +130,6 @@ export default function TrackPage() {
             ))}
           </div>
         </motion.div>
-
-        {/* Demo hint */}
-        <p className="text-center text-xs text-gray-400 mt-4">
-          Demo tracking number:{" "}
-          <button
-            onClick={() => setTrackingNumber("SWX-2026-DEMO01")}
-            className="text-[#D40511] font-bold hover:underline"
-          >
-            SWX-2026-DEMO01
-          </button>
-        </p>
       </div>
     </div>
   );

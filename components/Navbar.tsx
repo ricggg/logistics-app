@@ -30,9 +30,9 @@ export default function Navbar() {
               <Phone size={12} />
               <span className="hidden sm:inline">+1 (800) 225-5345</span>
             </a>
-            <a href="mailto:support@swiftxpress.com" className="flex items-center gap-1.5 hover:text-[#FFCC00] transition-colors">
+            <a href="mailto:support@tracgloballogistics.com" className="flex items-center gap-1.5 hover:text-[#FFCC00] transition-colors">
               <Mail size={12} />
-              <span className="hidden md:inline">support@swiftxpress.com</span>
+              <span className="hidden md:inline">support@tracgloballogistics.com</span>
             </a>
           </div>
           <span className="hidden md:block font-semibold">
@@ -49,11 +49,11 @@ export default function Navbar() {
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <div className="bg-[#D40511] px-3 py-1.5 rounded shadow-md">
                 <span className="text-white font-black text-xl tracking-tighter leading-none">
-                  SWIFT
+                  TRAC
                 </span>
               </div>
               <span className="font-black text-xl tracking-tight text-[#D40511] leading-none">
-                XPRESS
+                GLOBAL LOGISTICS
               </span>
             </Link>
 

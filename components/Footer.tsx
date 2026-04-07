@@ -57,11 +57,11 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="bg-[#D40511] px-3 py-1.5 rounded shadow-md">
                 <span className="text-white font-black text-xl tracking-tighter">
-                  SWIFT
+                  TRAC
                 </span>
               </div>
               <span className="font-black text-xl tracking-tight text-[#FFCC00]">
-                XPRESS
+                GLOBAL LOGISTICS
               </span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed mb-5">
@@ -164,8 +164,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail size={16} className="text-[#FFCC00] shrink-0" />
-                <a href="mailto:support@swiftxpress.com" className="hover:text-[#FFCC00] transition-colors">
-                  support@swiftxpress.com
+                <a href="mailto:support@tracgloballogistics.com" className="hover:text-[#FFCC00] transition-colors">
+                  support@tracgloballogistics.com
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
@@ -179,7 +179,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <p>© 2024 SwiftXpress Logistics. All rights reserved.</p>
+          <p>© 2026 Trac Global Logistics. All rights reserved.</p>
           <div className="flex items-center gap-5">
             <Link href="#" className="hover:text-gray-300 transition-colors">
               Privacy Policy
