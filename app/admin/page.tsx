@@ -193,13 +193,20 @@ export default function AdminPage() {
       {/* Admin header */}
       <div className="bg-[#1a1a1a] border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
-          <div>
-            <h1 className="text-white font-black text-xl">
-              SwiftXpress Admin
-            </h1>
-            <p className="text-gray-400 text-xs mt-0.5">
-              Shipment Management Dashboard
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="bg-[#D40511] px-3 py-1.5 rounded shadow-md">
+              <span className="text-white font-black text-base tracking-tighter leading-none">
+                TRAC
+              </span>
+            </div>
+            <div>
+              <h1 className="text-white font-black text-base leading-none">
+                Global Logistics
+              </h1>
+              <p className="text-gray-400 text-xs mt-0.5">
+                Shipment Management Dashboard
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -338,7 +345,10 @@ export default function AdminPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {filtered.map((s) => (
-                    <tr key={s.trackingNumber} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={s.trackingNumber}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-gray-900">
@@ -463,8 +473,11 @@ export default function AdminPage() {
                     <h3 className="font-black text-xl text-gray-900 mb-2">
                       Shipment Created!
                     </h3>
-                    <p className="text-gray-500 text-sm mb-5">
+                    <p className="text-gray-500 text-sm mb-1">
                       Share this tracking number with your customer:
+                    </p>
+                    <p className="text-xs text-gray-400 mb-5">
+                      Trac Global Logistics — Tracking Reference
                     </p>
                     <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between border-2 border-dashed border-gray-200 mb-5">
                       <span className="font-mono font-black text-lg text-gray-900">
@@ -754,7 +767,7 @@ export default function AdminPage() {
                         }))
                       }
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
-                      placeholder="e.g. Kano Sorting Center, Nigeria"
+                      placeholder="e.g. Stockholm Sorting Center, Sweden"
                     />
                   </div>
 
