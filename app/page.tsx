@@ -806,7 +806,6 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-            {/* Left */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -840,10 +839,10 @@ export default function HomePage() {
                   <div>
                     <p className="font-bold text-gray-900">Call Us Directly</p>
                     <a
-                      href="tel:+18002255345"
+                      href="tel:+46766920874"
                       className="text-[#D40511] font-semibold hover:underline"
                     >
-                      +1 (800) 225-5345
+                      +46 766 920 874
                     </a>
                   </div>
                 </div>

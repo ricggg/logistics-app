@@ -1,8 +1,7 @@
 // components/Footer.tsx
 import Link from "next/link";
-import { Package, Mail, Phone, Clock, MapPin, Award } from "lucide-react";
+import { Mail, Phone, Clock, MapPin, Award } from "lucide-react";
 
-// Custom SVG social icons
 function FacebookIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -65,16 +64,15 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed mb-5">
-              Trusted global logistics partner connecting businesses worldwide with speed, reliability, and precision since 2010.
+              Trusted global logistics partner connecting businesses worldwide
+              with speed, reliability, and precision since 2010.
             </p>
 
-            {/* Certifications */}
             <div className="flex items-center gap-2 mb-5">
               <Award size={16} className="text-[#FFCC00]" />
               <span className="text-xs text-gray-400">ISO 9001 Certified</span>
             </div>
 
-            {/* Social links */}
             <div className="flex items-center gap-3">
               {socialLinks.map(({ icon: Icon, label, href }) => (
                 <a
@@ -158,20 +156,28 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone size={16} className="text-[#FFCC00] shrink-0" />
-                <a href="tel:+18002255345" className="hover:text-[#FFCC00] transition-colors">
-                  +1 (800) 225-5345
+                <a
+                  href="tel:+46766920874"
+                  className="hover:text-[#FFCC00] transition-colors"
+                >
+                  +46 766 920 874
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail size={16} className="text-[#FFCC00] shrink-0" />
-                <a href="mailto:support@tracgloballogistics.com" className="hover:text-[#FFCC00] transition-colors">
+                <a
+                  href="mailto:support@tracgloballogistics.com"
+                  className="hover:text-[#FFCC00] transition-colors"
+                >
                   support@tracgloballogistics.com
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Clock size={16} className="text-[#FFCC00] shrink-0" />
-                Mon–Fri: 8am – 8pm EST<br />
-                <span className="text-xs text-gray-500">24/7 Online Support</span>
+              <li className="flex items-start gap-2.5">
+                <Clock size={16} className="text-[#FFCC00] shrink-0 mt-0.5" />
+                <div>
+                  <p>Mon–Fri: 8am – 8pm EST</p>
+                  <span className="text-xs text-gray-500">24/7 Online Support</span>
+                </div>
               </li>
             </ul>
           </div>

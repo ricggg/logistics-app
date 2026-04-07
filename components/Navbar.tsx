@@ -26,9 +26,9 @@ export default function Navbar() {
       <div className="bg-[#D40511] text-white text-xs py-2 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <a href="tel:+18002255345" className="flex items-center gap-1.5 hover:text-[#FFCC00] transition-colors">
+            <a href="tel:+46766920874" className="flex items-center gap-1.5 hover:text-[#FFCC00] transition-colors">
               <Phone size={12} />
-              <span className="hidden sm:inline">+1 (800) 225-5345</span>
+              <span className="hidden sm:inline">+46 766 920 874</span>
             </a>
             <a href="mailto:support@tracgloballogistics.com" className="flex items-center gap-1.5 hover:text-[#FFCC00] transition-colors">
               <Mail size={12} />
