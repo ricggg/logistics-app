@@ -150,8 +150,9 @@ export default function Footer() {
               <li className="flex items-start gap-2.5">
                 <MapPin size={16} className="text-[#FFCC00] shrink-0 mt-0.5" />
                 <span className="leading-relaxed">
-                  1250 Distribution Drive<br />
-                  Atlanta, GA 30318, USA
+                  Klarabergsviadukten 63<br />
+                  101 23 Stockholm<br />
+                  Sweden
                 </span>
               </li>
               <li className="flex items-center gap-2.5">
@@ -175,7 +176,7 @@ export default function Footer() {
               <li className="flex items-start gap-2.5">
                 <Clock size={16} className="text-[#FFCC00] shrink-0 mt-0.5" />
                 <div>
-                  <p>Mon–Fri: 8am – 8pm EST</p>
+                  <p>Mon–Fri: 8am – 8pm CET</p>
                   <span className="text-xs text-gray-500">24/7 Online Support</span>
                 </div>
               </li>
