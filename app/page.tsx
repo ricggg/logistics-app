@@ -965,4 +965,171 @@ export default function HomePage() {
                     required
                     value={formData.service}
                     onChange={handleFormChange}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FFCC00] focus:border-transparent outline-none transition-all 
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FFCC00] focus:border-transparent outline-none transition-all bg-white"
+                  >
+                    <option value="">Select a service</option>
+                    <option value="express">Express Delivery</option>
+                    <option value="international">International Shipping</option>
+                    <option value="air">Air Freight</option>
+                    <option value="ocean">Ocean Freight</option>
+                    <option value="warehousing">Warehousing</option>
+                    <option value="supply-chain">Supply Chain Solutions</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-semibold text-gray-700 mb-1.5"
+                  >
+                    Tell Us More
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    value={formData.message}
+                    onChange={handleFormChange}
+                    placeholder="Describe your shipment — origin, destination, volume, frequency..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FFCC00] focus:border-transparent outline-none transition-all resize-none"
+                  />
+                </div>
+
+                {formStatus === "success" && (
+                  <div className="flex items-center gap-2 text-green-700 bg-green-50 px-4 py-3 rounded-lg text-sm border border-green-200">
+                    <CheckCircle size={18} />
+                    <span>
+                      Message sent! We will contact you within 24 hours.
+                    </span>
+                  </div>
+                )}
+                {formStatus === "error" && (
+                  <div className="flex items-center gap-2 text-red-700 bg-red-50 px-4 py-3 rounded-lg text-sm border border-red-200">
+                    <AlertCircle size={18} />
+                    <span>Something went wrong. Please try again.</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={formStatus === "loading"}
+                  className="w-full bg-[#D40511] text-white px-6 py-3.5 rounded-lg font-bold text-sm hover:bg-[#b8040e] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
+                >
+                  {formStatus === "loading" ? (
+                    "Sending your request..."
+                  ) : (
+                    <>
+                      <Send size={16} />
+                      Get My Free Quote
+                    </>
+                  )}
+                </button>
+                <p className="text-xs text-gray-500 text-center">
+                  No spam. No obligation. We respond within 24 hours.
+                </p>
+              </form>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          FAQ
+      ══════════════════════════════════════ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <span className="text-[#D40511] text-sm font-black uppercase tracking-widest">
+              FAQ
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-2 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-gray-600 text-sm">
+              Got questions? We have answers. Can not find what you are looking
+              for?{" "}
+              <a
+                href="#contact"
+                className="text-[#D40511] font-semibold hover:underline"
+              >
+                Contact us
+              </a>
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-gray-50 rounded-xl p-6 md:p-8"
+          >
+            {faqs.map((faq) => (
+              <FAQItem key={faq.question} {...faq} />
+            ))}
+          </motion.div>
+
+          <div className="mt-10 text-center">
+            <a
+              href="#contact"
+              className="inline-flex items-center gap-2 bg-[#FFCC00] text-[#1a1a1a] px-6 py-3 rounded-lg font-bold text-sm hover:bg-[#e6b800] transition-colors"
+            >
+              Still have questions? Contact Support
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          FINAL CTA
+      ══════════════════════════════════════ */}
+      <section className="relative py-24 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1800&h=700&fit=crop&q=85')",
+          }}
+        />
+        <div className="absolute inset-0 bg-[#D40511]/90" />
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+              Ready to Ship with Confidence?
+            </h2>
+            <p className="text-red-100 mb-8 text-lg max-w-2xl mx-auto">
+              Join 10,000+ businesses who trust Trac Global Logistics for their
+              global logistics needs. Get your free quote in under 60 seconds.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="#contact"
+                className="bg-white text-[#D40511] px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors shadow-lg"
+              >
+                Get Free Quote
+              </a>
+              <a
+                href="/track"
+                className="bg-[#FFCC00] text-[#1a1a1a] px-8 py-4 rounded-lg font-bold hover:bg-[#e6b800] transition-colors shadow-lg"
+              >
+                Track a Shipment
+              </a>
+            </div>
+            <p className="text-red-100 text-sm mt-6">
+              ✓ No credit card required &nbsp;·&nbsp; ✓ Free quote in 24
+              hours &nbsp;·&nbsp; ✓ Cancel anytime
+            </p>
+          </motion.div>
+        </div>
+      </section>
+    </div>
+  );
+}
