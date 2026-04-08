@@ -1,26 +1,34 @@
 // app/api/track/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { shipmentsStore } from "@/lib/shipments";
+import { redis, shipmentKey, Shipment } from "@/lib/shipments";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const trackingNumber = searchParams.get("number");
+  const number = searchParams.get("number")?.toUpperCase().trim();
 
-  if (!trackingNumber) {
+  if (!number) {
     return NextResponse.json(
-      { error: "Tracking number is required." },
+      { error: "Tracking number required." },
       { status: 400 }
     );
   }
 
-  const shipment = shipmentsStore.get(trackingNumber.toUpperCase().trim());
+  try {
+    const shipment = await redis.get<Shipment>(shipmentKey(number));
 
-  if (!shipment) {
+    if (!shipment) {
+      return NextResponse.json(
+        { error: "Shipment not found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ shipment });
+  } catch (error) {
+    console.error("GET /api/track error:", error);
     return NextResponse.json(
-      { error: "No shipment found with that tracking number." },
-      { status: 404 }
+      { error: "Failed to fetch tracking data." },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json({ shipment });
 }

@@ -1,32 +1,10 @@
-// app/api/shipments/[id]/route.ts
+// app/api/shipmentsx/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
-  redis,
-  shipmentKey,
-  shipmentsIndexKey,
-  Shipment,
+  shipmentsXStore,
   ShipmentStatus,
   TrackingEvent,
-} from "@/lib/shipments";
-
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const trackingNumber = id.toUpperCase().trim();
-
-  const shipment = await redis.get<Shipment>(shipmentKey(trackingNumber));
-
-  if (!shipment) {
-    return NextResponse.json(
-      { error: "Shipment not found." },
-      { status: 404 }
-    );
-  }
-
-  return NextResponse.json({ shipment });
-}
+} from "@/lib/shipmentsX";
 
 export async function PATCH(
   req: NextRequest,
@@ -34,8 +12,7 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const trackingNumber = id.toUpperCase().trim();
-
-  const shipment = await redis.get<Shipment>(shipmentKey(trackingNumber));
+  const shipment = shipmentsXStore.get(trackingNumber);
 
   if (!shipment) {
     return NextResponse.json(
@@ -63,8 +40,7 @@ export async function PATCH(
 
   shipment.currentStatus = status as ShipmentStatus;
   shipment.events.push(newEvent);
-
-  await redis.set(shipmentKey(trackingNumber), shipment);
+  shipmentsXStore.set(trackingNumber, shipment);
 
   return NextResponse.json({ shipment });
 }
@@ -76,17 +52,13 @@ export async function DELETE(
   const { id } = await params;
   const trackingNumber = id.toUpperCase().trim();
 
-  const exists = await redis.get(shipmentKey(trackingNumber));
-
-  if (!exists) {
+  if (!shipmentsXStore.has(trackingNumber)) {
     return NextResponse.json(
       { error: "Shipment not found." },
       { status: 404 }
     );
   }
 
-  await redis.del(shipmentKey(trackingNumber));
-  await redis.srem(shipmentsIndexKey, trackingNumber);
-
+  shipmentsXStore.delete(trackingNumber);
   return NextResponse.json({ message: "Shipment deleted." });
 }

@@ -1,4 +1,4 @@
-// app/admin/page.tsx
+// app/adminx/page.tsx
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -23,12 +23,12 @@ import {
   EyeOff,
   LogOut,
 } from "lucide-react";
-import type { Shipment, ShipmentStatus } from "@/lib/shipments";
+import type { Shipment, ShipmentStatus } from "@/lib/shipmentsX";
 
 // ─────────────────────────────────────────
-// 🔐 PASSWORD
+// 🔐 SET YOUR PASSWORD HERE
 // ─────────────────────────────────────────
-const ADMIN_PASSWORD = "Christ643";
+const ADMINX_PASSWORD = "tracglobal2026";
 
 const STATUS_OPTIONS: ShipmentStatus[] = [
   "Order Placed",
@@ -95,8 +95,8 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
     setError("");
 
     setTimeout(() => {
-      if (password === ADMIN_PASSWORD) {
-        sessionStorage.setItem("admin_auth", "true");
+      if (password === ADMINX_PASSWORD) {
+        sessionStorage.setItem("adminx_auth", "true");
         onLogin();
       } else {
         setError("Incorrect password. Please try again.");
@@ -207,9 +207,9 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 }
 
 // ─────────────────────────────────────────
-// MAIN ADMIN DASHBOARD
+// MAIN ADMIN X DASHBOARD
 // ─────────────────────────────────────────
-export default function AdminPage() {
+export default function AdminXPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -217,20 +217,24 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  // Create modal
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>(emptyCreate);
   const [creating, setCreating] = useState(false);
   const [newTracking, setNewTracking] = useState("");
   const [copied, setCopied] = useState(false);
 
+  // Update modal
   const [updateTarget, setUpdateTarget] = useState<Shipment | null>(null);
   const [updateForm, setUpdateForm] = useState<UpdateForm>(emptyUpdate);
   const [updating, setUpdating] = useState(false);
 
+  // Delete
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Check session on mount
   useEffect(() => {
-    const auth = sessionStorage.getItem("admin_auth");
+    const auth = sessionStorage.getItem("adminx_auth");
     if (auth === "true") {
       setAuthenticated(true);
     }
@@ -240,7 +244,7 @@ export default function AdminPage() {
   const fetchShipments = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/shipments");
+      const res = await fetch("/api/shipmentsx");
       const data = await res.json();
       setShipments(data.shipments ?? []);
     } catch {
@@ -257,7 +261,7 @@ export default function AdminPage() {
   }, [authenticated, fetchShipments]);
 
   const handleLogout = () => {
-    sessionStorage.removeItem("admin_auth");
+    sessionStorage.removeItem("adminx_auth");
     setAuthenticated(false);
   };
 
@@ -265,7 +269,7 @@ export default function AdminPage() {
     e.preventDefault();
     setCreating(true);
     try {
-      const res = await fetch("/api/shipments", {
+      const res = await fetch("/api/shipmentsx", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(createForm),
@@ -289,7 +293,7 @@ export default function AdminPage() {
     setUpdating(true);
     try {
       const res = await fetch(
-        `/api/shipments/${updateTarget.trackingNumber}`,
+        `/api/shipmentsx/${updateTarget.trackingNumber}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -312,7 +316,7 @@ export default function AdminPage() {
     if (!confirm("Are you sure you want to delete this shipment?")) return;
     setDeletingId(trackingNumber);
     try {
-      await fetch(`/api/shipments/${trackingNumber}`, { method: "DELETE" });
+      await fetch(`/api/shipmentsx/${trackingNumber}`, { method: "DELETE" });
       fetchShipments();
     } catch {
       console.error("Delete failed");
@@ -336,11 +340,14 @@ export default function AdminPage() {
 
   const stats = {
     total: shipments.length,
-    inTransit: shipments.filter((s) => s.currentStatus === "In Transit").length,
+    inTransit: shipments.filter((s) => s.currentStatus === "In Transit")
+      .length,
     delivered: shipments.filter((s) => s.currentStatus === "Delivered").length,
-    exceptions: shipments.filter((s) => s.currentStatus === "Exception").length,
+    exceptions: shipments.filter((s) => s.currentStatus === "Exception")
+      .length,
   };
 
+  // ── Auth check loading ──
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
@@ -349,10 +356,12 @@ export default function AdminPage() {
     );
   }
 
+  // ── Login screen ──
   if (!authenticated) {
     return <LoginScreen onLogin={() => setAuthenticated(true)} />;
   }
 
+  // ── Dashboard ──
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Admin header */}

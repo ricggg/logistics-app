@@ -1,5 +1,4 @@
-// lib/shipments.ts
-import { Redis } from "@upstash/redis";
+// lib/shipmentsX.ts
 
 export type ShipmentStatus =
   | "Order Placed"
@@ -30,19 +29,21 @@ export interface Shipment {
   createdAt: string;
 }
 
-export const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+declare global {
+  // eslint-disable-next-line no-var
+  var shipmentsXStore: Map<string, Shipment> | undefined;
+}
 
-// Key helpers
-export const shipmentKey = (id: string) => `shipment:${id}`;
-export const shipmentsIndexKey = "shipments:index";
+if (!global.shipmentsXStore) {
+  global.shipmentsXStore = new Map<string, Shipment>();
+}
 
-export function generateTrackingNumber(): string {
+export const shipmentsXStore = global.shipmentsXStore;
+
+export function generateTrackingNumberX(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const random = Array.from({ length: 8 }, () =>
     chars.charAt(Math.floor(Math.random() * chars.length))
   ).join("");
-  return `TGL-2026-${random}`;
+  return `TGX-2026-${random}`;
 }

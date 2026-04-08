@@ -1,41 +1,18 @@
-// app/api/shipments/route.ts
+// app/api/shipmentsx/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
-  redis,
-  shipmentKey,
-  shipmentsIndexKey,
-  generateTrackingNumber,
+  shipmentsXStore,
+  generateTrackingNumberX,
   Shipment,
   TrackingEvent,
-} from "@/lib/shipments";
+} from "@/lib/shipmentsX";
 
 export async function GET() {
-  try {
-    const ids = await redis.smembers(shipmentsIndexKey);
-
-    if (!ids || ids.length === 0) {
-      return NextResponse.json({ shipments: [] });
-    }
-
-    const pipeline = redis.pipeline();
-    ids.forEach((id) => pipeline.get(shipmentKey(id)));
-    const results = await pipeline.exec();
-
-    const shipments = (results as (Shipment | null)[])
-      .filter((s): s is Shipment => s !== null)
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-
-    return NextResponse.json({ shipments });
-  } catch (error) {
-    console.error("GET /api/shipments error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch shipments." },
-      { status: 500 }
-    );
-  }
+  const all = Array.from(shipmentsXStore.values()).sort(
+    (a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  return NextResponse.json({ shipments: all });
 }
 
 export async function POST(req: NextRequest) {
@@ -67,7 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const trackingNumber = generateTrackingNumber();
+    const trackingNumber = generateTrackingNumberX();
     const now = new Date().toISOString();
 
     const firstEvent: TrackingEvent = {
@@ -91,12 +68,10 @@ export async function POST(req: NextRequest) {
       createdAt: now,
     };
 
-    await redis.set(shipmentKey(trackingNumber), shipment);
-    await redis.sadd(shipmentsIndexKey, trackingNumber);
+    shipmentsXStore.set(trackingNumber, shipment);
 
     return NextResponse.json({ trackingNumber, shipment }, { status: 201 });
-  } catch (error) {
-    console.error("POST /api/shipments error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to create shipment." },
       { status: 500 }
