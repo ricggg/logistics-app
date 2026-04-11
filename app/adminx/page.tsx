@@ -22,7 +22,6 @@ import {
   Eye,
   EyeOff,
   LogOut,
-  Phone,
 } from "lucide-react";
 import type { Shipment, ShipmentStatus } from "@/lib/shipmentsX";
 
@@ -51,10 +50,8 @@ const statusColors: Record<string, string> = {
 
 interface CreateForm {
   senderName: string;
-  senderPhone: string;
   senderAddress: string;
   receiverName: string;
-  receiverPhone: string;
   receiverAddress: string;
   packageDescription: string;
   weight: string;
@@ -69,10 +66,8 @@ interface UpdateForm {
 
 const emptyCreate: CreateForm = {
   senderName: "",
-  senderPhone: "",
   senderAddress: "",
   receiverName: "",
-  receiverPhone: "",
   receiverAddress: "",
   packageDescription: "",
   weight: "",
@@ -548,40 +543,22 @@ export default function AdminXPage() {
                           </button>
                         </div>
                       </td>
-
-                      {/* ── Sender cell with phone ── */}
                       <td className="px-5 py-4">
                         <p className="font-semibold text-gray-900 text-xs">
                           {s.senderName}
                         </p>
-                        {/* show phone if the field exists on the record */}
-                        {(s as any).senderPhone && (
-                          <p className="flex items-center gap-1 text-gray-500 text-xs mt-0.5">
-                            <Phone size={10} className="shrink-0" />
-                            {(s as any).senderPhone}
-                          </p>
-                        )}
-                        <p className="text-gray-400 text-xs truncate max-w-[130px] mt-0.5">
+                        <p className="text-gray-400 text-xs truncate max-w-[120px]">
                           {s.senderAddress}
                         </p>
                       </td>
-
-                      {/* ── Receiver cell with phone ── */}
                       <td className="px-5 py-4">
                         <p className="font-semibold text-gray-900 text-xs">
                           {s.receiverName}
                         </p>
-                        {(s as any).receiverPhone && (
-                          <p className="flex items-center gap-1 text-gray-500 text-xs mt-0.5">
-                            <Phone size={10} className="shrink-0" />
-                            {(s as any).receiverPhone}
-                          </p>
-                        )}
-                        <p className="text-gray-400 text-xs truncate max-w-[130px] mt-0.5">
+                        <p className="text-gray-400 text-xs truncate max-w-[120px]">
                           {s.receiverAddress}
                         </p>
                       </td>
-
                       <td className="px-5 py-4 text-xs text-gray-600 max-w-[130px] truncate">
                         {s.packageDescription}
                       </td>
@@ -719,14 +696,11 @@ export default function AdminXPage() {
                 ) : (
                   <form onSubmit={handleCreate} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-
-                      {/* ── SENDER SECTION ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3">
                           Sender Details
                         </h3>
                       </div>
-
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Sender Name *
@@ -745,33 +719,7 @@ export default function AdminXPage() {
                           placeholder="e.g. John Doe"
                         />
                       </div>
-
                       <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          Sender Phone *
-                        </label>
-                        <div className="relative">
-                          <Phone
-                            size={13}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                          />
-                          <input
-                            required
-                            type="tel"
-                            value={createForm.senderPhone}
-                            onChange={(e) =>
-                              setCreateForm((p) => ({
-                                ...p,
-                                senderPhone: e.target.value,
-                              }))
-                            }
-                            className="w-full border border-gray-200 rounded-lg pl-8 pr-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
-                            placeholder="e.g. +1 555 000 1234"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Sender Address *
                         </label>
@@ -790,13 +738,11 @@ export default function AdminXPage() {
                         />
                       </div>
 
-                      {/* ── RECEIVER SECTION ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 mt-2">
                           Recipient Details
                         </h3>
                       </div>
-
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Receiver Name *
@@ -815,33 +761,7 @@ export default function AdminXPage() {
                           placeholder="e.g. Jane Smith"
                         />
                       </div>
-
                       <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                          Receiver Phone *
-                        </label>
-                        <div className="relative">
-                          <Phone
-                            size={13}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                          />
-                          <input
-                            required
-                            type="tel"
-                            value={createForm.receiverPhone}
-                            onChange={(e) =>
-                              setCreateForm((p) => ({
-                                ...p,
-                                receiverPhone: e.target.value,
-                              }))
-                            }
-                            className="w-full border border-gray-200 rounded-lg pl-8 pr-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
-                            placeholder="e.g. +44 7700 900123"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Receiver Address *
                         </label>
@@ -860,13 +780,11 @@ export default function AdminXPage() {
                         />
                       </div>
 
-                      {/* ── PACKAGE SECTION ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 mt-2">
                           Package Details
                         </h3>
                       </div>
-
                       <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Package Description *
@@ -885,7 +803,6 @@ export default function AdminXPage() {
                           placeholder="e.g. Electronics — Smartphone"
                         />
                       </div>
-
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Weight *
@@ -904,7 +821,6 @@ export default function AdminXPage() {
                           placeholder="e.g. 2.5 kg"
                         />
                       </div>
-
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Estimated Delivery *
