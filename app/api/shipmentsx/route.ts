@@ -1,18 +1,40 @@
 // app/api/shipmentsx/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
-  shipmentsXStore,
+  redis,
+  shipmentXKey,
+  shipmentsXIndexKey,
   generateTrackingNumberX,
   Shipment,
   TrackingEvent,
 } from "@/lib/shipmentsX";
 
 export async function GET() {
-  const all = Array.from(shipmentsXStore.values()).sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-  return NextResponse.json({ shipments: all });
+  try {
+    const ids = await redis.lrange(shipmentsXIndexKey, 0, -1);
+
+    if (!ids || ids.length === 0) {
+      return NextResponse.json({ shipments: [] });
+    }
+
+    const shipments = await Promise.all(
+      ids.map((id) => redis.get<Shipment>(shipmentXKey(id)))
+    );
+
+    const valid = shipments
+      .filter((s): s is Shipment => s !== null)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+    return NextResponse.json({ shipments: valid });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to fetch shipments." },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -21,8 +43,10 @@ export async function POST(req: NextRequest) {
 
     const {
       senderName,
+      senderPhone,
       senderAddress,
       receiverName,
+      receiverPhone,
       receiverAddress,
       packageDescription,
       weight,
@@ -31,8 +55,10 @@ export async function POST(req: NextRequest) {
 
     if (
       !senderName ||
+      !senderPhone ||
       !senderAddress ||
       !receiverName ||
+      !receiverPhone ||
       !receiverAddress ||
       !packageDescription ||
       !weight ||
@@ -57,8 +83,10 @@ export async function POST(req: NextRequest) {
     const shipment: Shipment = {
       trackingNumber,
       senderName,
+      senderPhone,
       senderAddress,
       receiverName,
+      receiverPhone,
       receiverAddress,
       packageDescription,
       weight,
@@ -68,7 +96,8 @@ export async function POST(req: NextRequest) {
       createdAt: now,
     };
 
-    shipmentsXStore.set(trackingNumber, shipment);
+    await redis.set(shipmentXKey(trackingNumber), shipment);
+    await redis.lpush(shipmentsXIndexKey, trackingNumber);
 
     return NextResponse.json({ trackingNumber, shipment }, { status: 201 });
   } catch {

@@ -1,6 +1,6 @@
 // app/api/tracking-x/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { shipmentsXStore } from "@/lib/shipmentsX";
+import { redis, shipmentXKey, Shipment } from "@/lib/shipmentsX";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -13,14 +13,21 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const shipment = shipmentsXStore.get(number);
+  try {
+    const shipment = await redis.get<Shipment>(shipmentXKey(number));
 
-  if (!shipment) {
+    if (!shipment) {
+      return NextResponse.json(
+        { error: "Shipment not found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ shipment });
+  } catch {
     return NextResponse.json(
-      { error: "Shipment not found." },
-      { status: 404 }
+      { error: "Failed to fetch shipment." },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json({ shipment });
 }

@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   Clock,
   Loader2,
+  Phone,
 } from "lucide-react";
 import TrackingTimeline from "@/components/TrackingTimeline";
 import type { Shipment } from "@/lib/shipments";
@@ -27,6 +28,14 @@ const statusColors: Record<string, string> = {
   Delivered: "bg-green-100 text-green-700",
   Exception: "bg-red-100 text-red-700",
 };
+
+// Detect which API to call based on tracking number prefix
+function resolveTrackingAPI(number: string): string {
+  if (number.startsWith("TGX-")) {
+    return `/api/tracking-x?number=${encodeURIComponent(number)}`;
+  }
+  return `/api/track?number=${encodeURIComponent(number)}`;
+}
 
 function TrackingResultContent() {
   const searchParams = useSearchParams();
@@ -46,10 +55,11 @@ function TrackingResultContent() {
 
     const fetchShipment = async () => {
       try {
-        const res = await fetch(
-          `/api/track?number=${encodeURIComponent(number)}`
-        );
+        // Route to correct API based on tracking number prefix
+        const apiUrl = resolveTrackingAPI(number.toUpperCase().trim());
+        const res = await fetch(apiUrl);
         const data = await res.json();
+
         if (!res.ok) {
           setError(data.error || "Shipment not found.");
         } else {
@@ -171,10 +181,17 @@ function TrackingResultContent() {
                 <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
                   <User size={14} className="text-[#D40511]" />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-gray-900">
                     {shipment.senderName}
                   </p>
+                  {/* Phone — only shows if field exists */}
+                  {"senderPhone" in shipment && shipment.senderPhone && (
+                    <p className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                      <Phone size={10} className="shrink-0" />
+                      {(shipment as Shipment & { senderPhone: string }).senderPhone}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500 mt-0.5 flex items-start gap-1">
                     <MapPin size={10} className="mt-0.5 shrink-0" />
                     {shipment.senderAddress}
@@ -192,10 +209,17 @@ function TrackingResultContent() {
                 <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center shrink-0">
                   <User size={14} className="text-yellow-700" />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-gray-900">
                     {shipment.receiverName}
                   </p>
+                  {/* Phone — only shows if field exists */}
+                  {"receiverPhone" in shipment && shipment.receiverPhone && (
+                    <p className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                      <Phone size={10} className="shrink-0" />
+                      {(shipment as Shipment & { receiverPhone: string }).receiverPhone}
+                    </p>
+                  )}
                   <p className="text-xs text-gray-500 mt-0.5 flex items-start gap-1">
                     <MapPin size={10} className="mt-0.5 shrink-0" />
                     {shipment.receiverAddress}
@@ -211,17 +235,17 @@ function TrackingResultContent() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <Package size={14} className="text-gray-400" />
+                  <Package size={14} className="text-gray-400 shrink-0" />
                   <span className="text-gray-600">
                     {shipment.packageDescription}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Weight size={14} className="text-gray-400" />
+                  <Weight size={14} className="text-gray-400 shrink-0" />
                   <span className="text-gray-600">{shipment.weight}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Calendar size={14} className="text-gray-400" />
+                  <Calendar size={14} className="text-gray-400 shrink-0" />
                   <span className="text-gray-600">
                     Est. Delivery:{" "}
                     <span className="font-bold text-gray-900">

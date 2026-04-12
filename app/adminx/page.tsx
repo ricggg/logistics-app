@@ -22,11 +22,12 @@ import {
   Eye,
   EyeOff,
   LogOut,
+  Phone,
 } from "lucide-react";
 import type { Shipment, ShipmentStatus } from "@/lib/shipmentsX";
 
 // ─────────────────────────────────────────
-// 🔐 SET YOUR PASSWORD HERE
+// 🔐 PASSWORD
 // ─────────────────────────────────────────
 const ADMINX_PASSWORD = "tracglobal2026";
 
@@ -48,10 +49,15 @@ const statusColors: Record<string, string> = {
   Exception: "bg-red-100 text-red-700",
 };
 
+// ─────────────────────────────────────────
+// TYPES
+// ─────────────────────────────────────────
 interface CreateForm {
   senderName: string;
+  senderPhone: string;
   senderAddress: string;
   receiverName: string;
+  receiverPhone: string;
   receiverAddress: string;
   packageDescription: string;
   weight: string;
@@ -66,8 +72,10 @@ interface UpdateForm {
 
 const emptyCreate: CreateForm = {
   senderName: "",
+  senderPhone: "",
   senderAddress: "",
   receiverName: "",
+  receiverPhone: "",
   receiverAddress: "",
   packageDescription: "",
   weight: "",
@@ -340,11 +348,9 @@ export default function AdminXPage() {
 
   const stats = {
     total: shipments.length,
-    inTransit: shipments.filter((s) => s.currentStatus === "In Transit")
-      .length,
+    inTransit: shipments.filter((s) => s.currentStatus === "In Transit").length,
     delivered: shipments.filter((s) => s.currentStatus === "Delivered").length,
-    exceptions: shipments.filter((s) => s.currentStatus === "Exception")
-      .length,
+    exceptions: shipments.filter((s) => s.currentStatus === "Exception").length,
   };
 
   // ── Auth check loading ──
@@ -364,7 +370,7 @@ export default function AdminXPage() {
   // ── Dashboard ──
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Admin header */}
+      {/* ── HEADER ── */}
       <div className="bg-[#1a1a1a] border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -412,7 +418,7 @@ export default function AdminXPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats */}
+        {/* ── STATS ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
             {
@@ -463,7 +469,7 @@ export default function AdminXPage() {
           ))}
         </div>
 
-        {/* Table */}
+        {/* ── TABLE ── */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h2 className="font-black text-gray-900 flex items-center gap-2">
@@ -530,6 +536,7 @@ export default function AdminXPage() {
                       key={s.trackingNumber}
                       className="hover:bg-gray-50 transition-colors"
                     >
+                      {/* Tracking # */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-gray-900">
@@ -543,25 +550,45 @@ export default function AdminXPage() {
                           </button>
                         </div>
                       </td>
+
+                      {/* Sender */}
                       <td className="px-5 py-4">
                         <p className="font-semibold text-gray-900 text-xs">
                           {s.senderName}
                         </p>
-                        <p className="text-gray-400 text-xs truncate max-w-[120px]">
+                        {s.senderPhone && (
+                          <p className="flex items-center gap-1 text-gray-500 text-xs mt-0.5">
+                            <Phone size={10} className="text-gray-400" />
+                            {s.senderPhone}
+                          </p>
+                        )}
+                        <p className="text-gray-400 text-xs truncate max-w-[120px] mt-0.5">
                           {s.senderAddress}
                         </p>
                       </td>
+
+                      {/* Receiver */}
                       <td className="px-5 py-4">
                         <p className="font-semibold text-gray-900 text-xs">
                           {s.receiverName}
                         </p>
-                        <p className="text-gray-400 text-xs truncate max-w-[120px]">
+                        {s.receiverPhone && (
+                          <p className="flex items-center gap-1 text-gray-500 text-xs mt-0.5">
+                            <Phone size={10} className="text-gray-400" />
+                            {s.receiverPhone}
+                          </p>
+                        )}
+                        <p className="text-gray-400 text-xs truncate max-w-[120px] mt-0.5">
                           {s.receiverAddress}
                         </p>
                       </td>
+
+                      {/* Description */}
                       <td className="px-5 py-4 text-xs text-gray-600 max-w-[130px] truncate">
                         {s.packageDescription}
                       </td>
+
+                      {/* Status */}
                       <td className="px-5 py-4">
                         <span
                           className={`px-2.5 py-1 rounded-full text-xs font-bold ${
@@ -572,9 +599,13 @@ export default function AdminXPage() {
                           {s.currentStatus}
                         </span>
                       </td>
+
+                      {/* Est. Delivery */}
                       <td className="px-5 py-4 text-xs text-gray-600">
                         {s.estimatedDelivery}
                       </td>
+
+                      {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           <button
@@ -642,6 +673,7 @@ export default function AdminXPage() {
 
               <div className="p-6">
                 {newTracking ? (
+                  /* ── SUCCESS STATE ── */
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -694,13 +726,17 @@ export default function AdminXPage() {
                     </div>
                   </motion.div>
                 ) : (
+                  /* ── CREATE FORM ── */
                   <form onSubmit={handleCreate} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                      {/* ── SENDER DETAILS ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3">
                           Sender Details
                         </h3>
                       </div>
+
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Sender Name *
@@ -719,7 +755,33 @@ export default function AdminXPage() {
                           placeholder="e.g. John Doe"
                         />
                       </div>
+
                       <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                          Sender Phone *
+                        </label>
+                        <div className="relative">
+                          <Phone
+                            size={13}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                          />
+                          <input
+                            required
+                            type="tel"
+                            value={createForm.senderPhone}
+                            onChange={(e) =>
+                              setCreateForm((p) => ({
+                                ...p,
+                                senderPhone: e.target.value,
+                              }))
+                            }
+                            className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
+                            placeholder="e.g. +234 801 234 5678"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Sender Address *
                         </label>
@@ -734,15 +796,17 @@ export default function AdminXPage() {
                             }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
-                          placeholder="e.g. 123 Main St, Lagos"
+                          placeholder="e.g. 123 Main St, Lagos, Nigeria"
                         />
                       </div>
 
+                      {/* ── RECIPIENT DETAILS ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 mt-2">
                           Recipient Details
                         </h3>
                       </div>
+
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Receiver Name *
@@ -761,7 +825,33 @@ export default function AdminXPage() {
                           placeholder="e.g. Jane Smith"
                         />
                       </div>
+
                       <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                          Receiver Phone *
+                        </label>
+                        <div className="relative">
+                          <Phone
+                            size={13}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                          />
+                          <input
+                            required
+                            type="tel"
+                            value={createForm.receiverPhone}
+                            onChange={(e) =>
+                              setCreateForm((p) => ({
+                                ...p,
+                                receiverPhone: e.target.value,
+                              }))
+                            }
+                            className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
+                            placeholder="e.g. +1 415 987 6543"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Receiver Address *
                         </label>
@@ -776,15 +866,17 @@ export default function AdminXPage() {
                             }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
-                          placeholder="e.g. 456 Oak Ave, Abuja"
+                          placeholder="e.g. 456 Oak Ave, Abuja, Nigeria"
                         />
                       </div>
 
+                      {/* ── PACKAGE DETAILS ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 mt-2">
                           Package Details
                         </h3>
                       </div>
+
                       <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Package Description *
@@ -803,6 +895,7 @@ export default function AdminXPage() {
                           placeholder="e.g. Electronics — Smartphone"
                         />
                       </div>
+
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Weight *
@@ -821,6 +914,7 @@ export default function AdminXPage() {
                           placeholder="e.g. 2.5 kg"
                         />
                       </div>
+
                       <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1.5">
                           Estimated Delivery *
