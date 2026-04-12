@@ -19,8 +19,10 @@ export interface TrackingEvent {
 export interface Shipment {
   trackingNumber: string;
   senderName: string;
+  senderPhone: string;
   senderAddress: string;
   receiverName: string;
+  receiverPhone: string;
   receiverAddress: string;
   packageDescription: string;
   weight: string;

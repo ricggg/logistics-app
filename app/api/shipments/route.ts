@@ -44,8 +44,10 @@ export async function POST(req: NextRequest) {
 
     const {
       senderName,
+      senderPhone,
       senderAddress,
       receiverName,
+      receiverPhone,
       receiverAddress,
       packageDescription,
       weight,
@@ -54,8 +56,10 @@ export async function POST(req: NextRequest) {
 
     if (
       !senderName ||
+      !senderPhone ||
       !senderAddress ||
       !receiverName ||
+      !receiverPhone ||
       !receiverAddress ||
       !packageDescription ||
       !weight ||
@@ -80,8 +84,10 @@ export async function POST(req: NextRequest) {
     const shipment: Shipment = {
       trackingNumber,
       senderName,
+      senderPhone,
       senderAddress,
       receiverName,
+      receiverPhone,
       receiverAddress,
       packageDescription,
       weight,
