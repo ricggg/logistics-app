@@ -23,6 +23,7 @@ import {
   EyeOff,
   LogOut,
   Phone,
+  ShieldAlert,
 } from "lucide-react";
 import type { Shipment, ShipmentStatus } from "@/lib/shipmentsX";
 
@@ -31,23 +32,84 @@ import type { Shipment, ShipmentStatus } from "@/lib/shipmentsX";
 // ─────────────────────────────────────────
 const ADMINX_PASSWORD = "tracglobal2026";
 
+// ─────────────────────────────────────────
+// STATUS OPTIONS — FULL LIST
+// ─────────────────────────────────────────
 const STATUS_OPTIONS: ShipmentStatus[] = [
   "Order Placed",
   "Picked Up",
   "In Transit",
+  "On Hold",
+  "Customs Hold",
+  "Pending Customs Clearance",
+  "Customs Documentation Required",
+  "Duty Payment Required",
+  "Customs Cleared",
+  "Released from Customs",
+  "Seized by Customs",
   "Out for Delivery",
   "Delivered",
   "Exception",
 ];
 
+// ─────────────────────────────────────────
+// STATUS BADGE COLORS
+// ─────────────────────────────────────────
 const statusColors: Record<string, string> = {
-  "Order Placed": "bg-blue-100 text-blue-700",
-  "Picked Up": "bg-yellow-100 text-yellow-700",
-  "In Transit": "bg-orange-100 text-orange-700",
-  "Out for Delivery": "bg-purple-100 text-purple-700",
-  Delivered: "bg-green-100 text-green-700",
-  Exception: "bg-red-100 text-red-700",
+  "Order Placed":                   "bg-blue-100 text-blue-700 border border-blue-200",
+  "Picked Up":                      "bg-yellow-100 text-yellow-700 border border-yellow-200",
+  "In Transit":                     "bg-orange-100 text-orange-700 border border-orange-200",
+  "Out for Delivery":               "bg-purple-100 text-purple-700 border border-purple-200",
+  "Delivered":                      "bg-green-100 text-green-700 border border-green-200",
+  "Exception":                      "bg-red-100 text-red-700 border border-red-200",
+  "On Hold":                        "bg-orange-100 text-orange-800 border border-orange-300",
+  "Customs Hold":                   "bg-red-100 text-red-800 border border-red-300",
+  "Pending Customs Clearance":      "bg-amber-100 text-amber-800 border border-amber-300",
+  "Customs Documentation Required": "bg-rose-100 text-rose-800 border border-rose-300",
+  "Duty Payment Required":          "bg-orange-200 text-orange-900 border border-orange-400",
+  "Customs Cleared":                "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  "Released from Customs":          "bg-teal-100 text-teal-700 border border-teal-200",
+  "Seized by Customs":              "bg-red-200 text-red-900 border border-red-500",
 };
+
+// ─────────────────────────────────────────
+// STATUS GROUPS (for grouped select)
+// ─────────────────────────────────────────
+const STATUS_GROUPS = [
+  {
+    label: "Standard Flow",
+    options: ["Order Placed", "Picked Up", "In Transit"],
+  },
+  {
+    label: "Hold & Customs",
+    options: [
+      "On Hold",
+      "Customs Hold",
+      "Pending Customs Clearance",
+      "Customs Documentation Required",
+      "Duty Payment Required",
+      "Customs Cleared",
+      "Released from Customs",
+      "Seized by Customs",
+    ],
+  },
+  {
+    label: "Final States",
+    options: ["Out for Delivery", "Delivered", "Exception"],
+  },
+];
+
+// ─────────────────────────────────────────
+// CUSTOMS STATUSES SET
+// ─────────────────────────────────────────
+const CUSTOMS_STATUSES = new Set([
+  "On Hold",
+  "Customs Hold",
+  "Pending Customs Clearance",
+  "Customs Documentation Required",
+  "Duty Payment Required",
+  "Seized by Customs",
+]);
 
 // ─────────────────────────────────────────
 // TYPES
@@ -121,7 +183,6 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="bg-[#D40511] px-3 py-1.5 rounded shadow-md">
@@ -136,7 +197,6 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <p className="text-gray-400 text-sm">Secure Admin Access</p>
         </div>
 
-        {/* Login card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="flex items-center justify-center w-14 h-14 bg-[#D40511]/10 rounded-full mx-auto mb-6">
             <Lock size={24} className="text-[#D40511]" />
@@ -225,27 +285,21 @@ export default function AdminXPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  // Create modal
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>(emptyCreate);
   const [creating, setCreating] = useState(false);
   const [newTracking, setNewTracking] = useState("");
   const [copied, setCopied] = useState(false);
 
-  // Update modal
   const [updateTarget, setUpdateTarget] = useState<Shipment | null>(null);
   const [updateForm, setUpdateForm] = useState<UpdateForm>(emptyUpdate);
   const [updating, setUpdating] = useState(false);
 
-  // Delete
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Check session on mount
   useEffect(() => {
     const auth = sessionStorage.getItem("adminx_auth");
-    if (auth === "true") {
-      setAuthenticated(true);
-    }
+    if (auth === "true") setAuthenticated(true);
     setCheckingAuth(false);
   }, []);
 
@@ -263,9 +317,7 @@ export default function AdminXPage() {
   }, []);
 
   useEffect(() => {
-    if (authenticated) {
-      fetchShipments();
-    }
+    if (authenticated) fetchShipments();
   }, [authenticated, fetchShipments]);
 
   const handleLogout = () => {
@@ -300,14 +352,11 @@ export default function AdminXPage() {
     if (!updateTarget) return;
     setUpdating(true);
     try {
-      const res = await fetch(
-        `/api/shipmentsx/${updateTarget.trackingNumber}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updateForm),
-        }
-      );
+      const res = await fetch(`/api/shipmentsx/${updateTarget.trackingNumber}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateForm),
+      });
       if (res.ok) {
         setUpdateTarget(null);
         setUpdateForm(emptyUpdate);
@@ -351,9 +400,9 @@ export default function AdminXPage() {
     inTransit: shipments.filter((s) => s.currentStatus === "In Transit").length,
     delivered: shipments.filter((s) => s.currentStatus === "Delivered").length,
     exceptions: shipments.filter((s) => s.currentStatus === "Exception").length,
+    customsHold: shipments.filter((s) => CUSTOMS_STATUSES.has(s.currentStatus)).length,
   };
 
-  // ── Auth check loading ──
   if (checkingAuth) {
     return (
       <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
@@ -362,12 +411,10 @@ export default function AdminXPage() {
     );
   }
 
-  // ── Login screen ──
   if (!authenticated) {
     return <LoginScreen onLogin={() => setAuthenticated(true)} />;
   }
 
-  // ── Dashboard ──
   return (
     <div className="min-h-screen bg-gray-100">
       {/* ── HEADER ── */}
@@ -397,10 +444,7 @@ export default function AdminXPage() {
               Refresh
             </button>
             <button
-              onClick={() => {
-                setShowCreate(true);
-                setNewTracking("");
-              }}
+              onClick={() => { setShowCreate(true); setNewTracking(""); }}
               className="flex items-center gap-2 bg-[#D40511] text-white px-4 py-2 rounded text-xs font-bold hover:bg-[#b8040e] transition-colors"
             >
               <Plus size={14} />
@@ -418,8 +462,9 @@ export default function AdminXPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
         {/* ── STATS ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {[
             {
               label: "Total Shipments",
@@ -441,6 +486,13 @@ export default function AdminXPage() {
               icon: CheckCheck,
               color: "text-green-600",
               bg: "bg-green-100",
+            },
+            {
+              label: "Customs / Hold",
+              value: stats.customsHold,
+              icon: ShieldAlert,
+              color: "text-amber-600",
+              bg: "bg-amber-100",
             },
             {
               label: "Exceptions",
@@ -493,10 +545,7 @@ export default function AdminXPage() {
 
           {loading ? (
             <div className="py-20 text-center">
-              <Loader2
-                size={32}
-                className="animate-spin text-[#D40511] mx-auto mb-3"
-              />
+              <Loader2 size={32} className="animate-spin text-[#D40511] mx-auto mb-3" />
               <p className="text-gray-500 text-sm">Loading shipments...</p>
             </div>
           ) : filtered.length === 0 ? (
@@ -536,7 +585,6 @@ export default function AdminXPage() {
                       key={s.trackingNumber}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      {/* Tracking # */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-xs font-bold text-gray-900">
@@ -551,7 +599,6 @@ export default function AdminXPage() {
                         </div>
                       </td>
 
-                      {/* Sender */}
                       <td className="px-5 py-4">
                         <p className="font-semibold text-gray-900 text-xs">
                           {s.senderName}
@@ -567,7 +614,6 @@ export default function AdminXPage() {
                         </p>
                       </td>
 
-                      {/* Receiver */}
                       <td className="px-5 py-4">
                         <p className="font-semibold text-gray-900 text-xs">
                           {s.receiverName}
@@ -583,29 +629,29 @@ export default function AdminXPage() {
                         </p>
                       </td>
 
-                      {/* Description */}
                       <td className="px-5 py-4 text-xs text-gray-600 max-w-[130px] truncate">
                         {s.packageDescription}
                       </td>
 
-                      {/* Status */}
+                      {/* Status badge */}
                       <td className="px-5 py-4">
                         <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${
                             statusColors[s.currentStatus] ??
-                            "bg-gray-100 text-gray-700"
+                            "bg-gray-100 text-gray-700 border border-gray-200"
                           }`}
                         >
+                          {CUSTOMS_STATUSES.has(s.currentStatus) && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-70 animate-pulse" />
+                          )}
                           {s.currentStatus}
                         </span>
                       </td>
 
-                      {/* Est. Delivery */}
                       <td className="px-5 py-4 text-xs text-gray-600">
                         {s.estimatedDelivery}
                       </td>
 
-                      {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           <button
@@ -661,10 +707,7 @@ export default function AdminXPage() {
                   Create New Shipment
                 </h2>
                 <button
-                  onClick={() => {
-                    setShowCreate(false);
-                    setNewTracking("");
-                  }}
+                  onClick={() => { setShowCreate(false); setNewTracking(""); }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <X size={20} />
@@ -673,7 +716,6 @@ export default function AdminXPage() {
 
               <div className="p-6">
                 {newTracking ? (
-                  /* ── SUCCESS STATE ── */
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -699,11 +741,7 @@ export default function AdminXPage() {
                         onClick={() => copyToClipboard(newTracking)}
                         className="flex items-center gap-2 bg-[#D40511] text-white px-4 py-2 rounded font-bold text-sm hover:bg-[#b8040e] transition-colors"
                       >
-                        {copied ? (
-                          <CheckCheck size={14} />
-                        ) : (
-                          <Copy size={14} />
-                        )}
+                        {copied ? <CheckCheck size={14} /> : <Copy size={14} />}
                         {copied ? "Copied!" : "Copy"}
                       </button>
                     </div>
@@ -715,10 +753,7 @@ export default function AdminXPage() {
                         Create Another
                       </button>
                       <button
-                        onClick={() => {
-                          setShowCreate(false);
-                          setNewTracking("");
-                        }}
+                        onClick={() => { setShowCreate(false); setNewTracking(""); }}
                         className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded font-bold text-sm hover:bg-gray-200 transition-colors"
                       >
                         Close
@@ -726,11 +761,9 @@ export default function AdminXPage() {
                     </div>
                   </motion.div>
                 ) : (
-                  /* ── CREATE FORM ── */
                   <form onSubmit={handleCreate} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-                      {/* ── SENDER DETAILS ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3">
                           Sender Details
@@ -746,10 +779,7 @@ export default function AdminXPage() {
                           type="text"
                           value={createForm.senderName}
                           onChange={(e) =>
-                            setCreateForm((p) => ({
-                              ...p,
-                              senderName: e.target.value,
-                            }))
+                            setCreateForm((p) => ({ ...p, senderName: e.target.value }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                           placeholder="e.g. John Doe"
@@ -761,19 +791,13 @@ export default function AdminXPage() {
                           Sender Phone *
                         </label>
                         <div className="relative">
-                          <Phone
-                            size={13}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                          />
+                          <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                           <input
                             required
                             type="tel"
                             value={createForm.senderPhone}
                             onChange={(e) =>
-                              setCreateForm((p) => ({
-                                ...p,
-                                senderPhone: e.target.value,
-                              }))
+                              setCreateForm((p) => ({ ...p, senderPhone: e.target.value }))
                             }
                             className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                             placeholder="e.g. +234 801 234 5678"
@@ -790,17 +814,13 @@ export default function AdminXPage() {
                           type="text"
                           value={createForm.senderAddress}
                           onChange={(e) =>
-                            setCreateForm((p) => ({
-                              ...p,
-                              senderAddress: e.target.value,
-                            }))
+                            setCreateForm((p) => ({ ...p, senderAddress: e.target.value }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                           placeholder="e.g. 123 Main St, Lagos, Nigeria"
                         />
                       </div>
 
-                      {/* ── RECIPIENT DETAILS ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 mt-2">
                           Recipient Details
@@ -816,10 +836,7 @@ export default function AdminXPage() {
                           type="text"
                           value={createForm.receiverName}
                           onChange={(e) =>
-                            setCreateForm((p) => ({
-                              ...p,
-                              receiverName: e.target.value,
-                            }))
+                            setCreateForm((p) => ({ ...p, receiverName: e.target.value }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                           placeholder="e.g. Jane Smith"
@@ -831,19 +848,13 @@ export default function AdminXPage() {
                           Receiver Phone *
                         </label>
                         <div className="relative">
-                          <Phone
-                            size={13}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                          />
+                          <Phone size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                           <input
                             required
                             type="tel"
                             value={createForm.receiverPhone}
                             onChange={(e) =>
-                              setCreateForm((p) => ({
-                                ...p,
-                                receiverPhone: e.target.value,
-                              }))
+                              setCreateForm((p) => ({ ...p, receiverPhone: e.target.value }))
                             }
                             className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                             placeholder="e.g. +1 415 987 6543"
@@ -860,17 +871,13 @@ export default function AdminXPage() {
                           type="text"
                           value={createForm.receiverAddress}
                           onChange={(e) =>
-                            setCreateForm((p) => ({
-                              ...p,
-                              receiverAddress: e.target.value,
-                            }))
+                            setCreateForm((p) => ({ ...p, receiverAddress: e.target.value }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                           placeholder="e.g. 456 Oak Ave, Abuja, Nigeria"
                         />
                       </div>
 
-                      {/* ── PACKAGE DETAILS ── */}
                       <div className="sm:col-span-2">
                         <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 mt-2">
                           Package Details
@@ -886,10 +893,7 @@ export default function AdminXPage() {
                           type="text"
                           value={createForm.packageDescription}
                           onChange={(e) =>
-                            setCreateForm((p) => ({
-                              ...p,
-                              packageDescription: e.target.value,
-                            }))
+                            setCreateForm((p) => ({ ...p, packageDescription: e.target.value }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                           placeholder="e.g. Electronics — Smartphone"
@@ -905,10 +909,7 @@ export default function AdminXPage() {
                           type="text"
                           value={createForm.weight}
                           onChange={(e) =>
-                            setCreateForm((p) => ({
-                              ...p,
-                              weight: e.target.value,
-                            }))
+                            setCreateForm((p) => ({ ...p, weight: e.target.value }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                           placeholder="e.g. 2.5 kg"
@@ -924,10 +925,7 @@ export default function AdminXPage() {
                           type="date"
                           value={createForm.estimatedDelivery}
                           onChange={(e) =>
-                            setCreateForm((p) => ({
-                              ...p,
-                              estimatedDelivery: e.target.value,
-                            }))
+                            setCreateForm((p) => ({ ...p, estimatedDelivery: e.target.value }))
                           }
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
                         />
@@ -996,6 +994,8 @@ export default function AdminXPage() {
                     <label className="block text-xs font-bold text-gray-700 mb-1.5">
                       New Status *
                     </label>
+
+                    {/* ── GROUPED SELECT ── */}
                     <div className="relative">
                       <select
                         required
@@ -1006,12 +1006,16 @@ export default function AdminXPage() {
                             status: e.target.value as ShipmentStatus,
                           }))
                         }
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors appearance-none"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors appearance-none bg-white"
                       >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
+                        {STATUS_GROUPS.map((group) => (
+                          <optgroup key={group.label} label={group.label}>
+                            {group.options.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </optgroup>
                         ))}
                       </select>
                       <ChevronDown
@@ -1019,6 +1023,37 @@ export default function AdminXPage() {
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                       />
                     </div>
+
+                    {/* ── LIVE BADGE PREVIEW ── */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-xs text-gray-400">Preview:</span>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                          statusColors[updateForm.status] ??
+                          "bg-gray-100 text-gray-700 border border-gray-200"
+                        }`}
+                      >
+                        {CUSTOMS_STATUSES.has(updateForm.status) && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-current mr-1.5 opacity-70 animate-pulse" />
+                        )}
+                        {updateForm.status}
+                      </span>
+                    </div>
+
+                    {/* ── CUSTOMS WARNING ── */}
+                    {CUSTOMS_STATUSES.has(updateForm.status) && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5"
+                      >
+                        <ShieldAlert size={14} className="text-amber-600 mt-0.5 shrink-0" />
+                        <p className="text-xs text-amber-800 font-medium">
+                          This status indicates a customs or hold situation. Make sure the
+                          description clearly explains what action is needed.
+                        </p>
+                      </motion.div>
+                    )}
                   </div>
 
                   <div>
@@ -1030,13 +1065,10 @@ export default function AdminXPage() {
                       type="text"
                       value={updateForm.location}
                       onChange={(e) =>
-                        setUpdateForm((p) => ({
-                          ...p,
-                          location: e.target.value,
-                        }))
+                        setUpdateForm((p) => ({ ...p, location: e.target.value }))
                       }
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
-                      placeholder="e.g. Stockholm Sorting Center, Sweden"
+                      placeholder="e.g. Lagos International Airport, Nigeria"
                     />
                   </div>
 
@@ -1049,13 +1081,14 @@ export default function AdminXPage() {
                       type="text"
                       value={updateForm.description}
                       onChange={(e) =>
-                        setUpdateForm((p) => ({
-                          ...p,
-                          description: e.target.value,
-                        }))
+                        setUpdateForm((p) => ({ ...p, description: e.target.value }))
                       }
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D40511] transition-colors"
-                      placeholder="e.g. Package arrived at sorting facility"
+                      placeholder={
+                        CUSTOMS_STATUSES.has(updateForm.status)
+                          ? "e.g. Package held at customs — import documents required"
+                          : "e.g. Package arrived at sorting facility"
+                      }
                     />
                   </div>
 
