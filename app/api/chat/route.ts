@@ -1,3 +1,4 @@
+// app/api/chat/route.ts
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { LOGISTICS_SYSTEM_PROMPT } from "@/lib/logistics-knowledge";
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
         { role: "system", content: LOGISTICS_SYSTEM_PROMPT },
         ...messages,
       ],
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 500,
     });
 
@@ -40,7 +41,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
-      { message: "Sorry, something went wrong. Please try again later." },
+      {
+        message:
+          "Sorry, something went wrong. Please try again or contact us at support@clearrouteglobal.com.",
+      },
       { status: 500 }
     );
   }
