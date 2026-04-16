@@ -1,3 +1,4 @@
+// components/ChatWidget.tsx
 "use client";
 
 import { useState, useRef, useEffect, FormEvent } from "react";
@@ -22,7 +23,7 @@ export default function ChatWidget() {
     {
       role: "assistant",
       content:
-        "Hi! 👋 Welcome to Trac Global Logistics. I can help you with shipment tracking, quotes, services, and more. How can I assist you today?",
+        "Hi! 👋 Welcome to ClearRoute Global Logistics. I can help you with shipment tracking, quotes, services, and more. How can I assist you today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -71,7 +72,7 @@ export default function ChatWidget() {
         {
           role: "assistant",
           content:
-            "Sorry, something went wrong. Please try again or contact us at support@tracgloballogistics.com or call +46 766 920 874.",
+            "Sorry, something went wrong. Please try again or contact us at support@clearrouteglobal.com or call +46 766 920 874.",
         },
       ]);
     } finally {
@@ -127,7 +128,7 @@ export default function ChatWidget() {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white">
-                    Trac Global Assistant
+                    ClearRoute Assistant
                   </h3>
                   <div className="flex items-center gap-1.5">
                     <span
@@ -159,7 +160,9 @@ export default function ChatWidget() {
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i === messages.length - 1 ? 0.1 : 0 }}
+                  transition={{
+                    delay: i === messages.length - 1 ? 0.1 : 0,
+                  }}
                   className={`flex items-start gap-2.5 ${
                     msg.role === "user" ? "flex-row-reverse" : "flex-row"
                   }`}
@@ -273,7 +276,7 @@ export default function ChatWidget() {
             {/* Footer Branding */}
             <div className="bg-white px-4 pb-2 pt-0">
               <p className="text-center text-[10px] text-gray-400">
-                Powered by Trac Global Logistics AI · Available 24/7
+                Powered by ClearRoute Global AI · Available 24/7
               </p>
             </div>
           </motion.div>

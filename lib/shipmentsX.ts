@@ -45,7 +45,6 @@ export const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-// Separate namespace from regular shipments
 export const shipmentXKey = (id: string) => `shipmentx:${id}`;
 export const shipmentsXIndexKey = "shipmentsx:index";
 
@@ -54,5 +53,5 @@ export function generateTrackingNumberX(): string {
   const random = Array.from({ length: 8 }, () =>
     chars.charAt(Math.floor(Math.random() * chars.length))
   ).join("");
-  return `TGX-2026-${random}`;
+  return `CRX-2026-${random}`;
 }

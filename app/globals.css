@@ -22,7 +22,8 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
 }
 
@@ -30,12 +31,10 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Remove default margins */
 h1, h2, h3, h4, h5, h6, p {
   margin: 0;
 }
 
-/* Focus styles for accessibility */
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,

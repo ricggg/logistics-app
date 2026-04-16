@@ -20,7 +20,15 @@ function TwitterIcon() {
 
 function InstagramIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-4 h-4"
+    >
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
       <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
@@ -56,23 +64,21 @@ export default function Footer() {
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="bg-[#D40511] px-3 py-1.5 rounded shadow-md">
                 <span className="text-white font-black text-xl tracking-tighter">
-                  TRAC
+                  CLEAR
                 </span>
               </div>
               <span className="font-black text-xl tracking-tight text-[#FFCC00]">
-                GLOBAL LOGISTICS
+                ROUTE GLOBAL
               </span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed mb-5">
               Trusted global logistics partner connecting businesses worldwide
               with speed, reliability, and precision since 2010.
             </p>
-
             <div className="flex items-center gap-2 mb-5">
               <Award size={16} className="text-[#FFCC00]" />
               <span className="text-xs text-gray-400">ISO 9001 Certified</span>
             </div>
-
             <div className="flex items-center gap-3">
               {socialLinks.map(({ icon: Icon, label, href }) => (
                 <a
@@ -148,10 +154,15 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3.5 text-sm text-gray-400">
               <li className="flex items-start gap-2.5">
-                <MapPin size={16} className="text-[#FFCC00] shrink-0 mt-0.5" />
+                <MapPin
+                  size={16}
+                  className="text-[#FFCC00] shrink-0 mt-0.5"
+                />
                 <span className="leading-relaxed">
-                  Klarabergsviadukten 63<br />
-                  101 23 Stockholm<br />
+                  Klarabergsviadukten 63
+                  <br />
+                  101 23 Stockholm
+                  <br />
                   Sweden
                 </span>
               </li>
@@ -167,17 +178,22 @@ export default function Footer() {
               <li className="flex items-center gap-2.5">
                 <Mail size={16} className="text-[#FFCC00] shrink-0" />
                 <a
-                  href="mailto:support@tracgloballogistics.com"
-                  className="hover:text-[#FFCC00] transition-colors"
+                  href="mailto:support@clearrouteglobal.com"
+                  className="hover:text-[#FFCC00] transition-colors break-all"
                 >
-                  support@tracgloballogistics.com
+                  support@clearrouteglobal.com
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
-                <Clock size={16} className="text-[#FFCC00] shrink-0 mt-0.5" />
+                <Clock
+                  size={16}
+                  className="text-[#FFCC00] shrink-0 mt-0.5"
+                />
                 <div>
                   <p>Mon–Fri: 8am – 8pm CET</p>
-                  <span className="text-xs text-gray-500">24/7 Online Support</span>
+                  <span className="text-xs text-gray-500">
+                    24/7 Online Support
+                  </span>
                 </div>
               </li>
             </ul>
@@ -186,15 +202,24 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <p>© 2026 Trac Global Logistics. All rights reserved.</p>
+          <p>© 2026 ClearRoute Global Logistics. All rights reserved.</p>
           <div className="flex items-center gap-5">
-            <Link href="#" className="hover:text-gray-300 transition-colors">
+            <Link
+              href="#"
+              className="hover:text-gray-300 transition-colors"
+            >
               Privacy Policy
             </Link>
-            <Link href="#" className="hover:text-gray-300 transition-colors">
+            <Link
+              href="#"
+              className="hover:text-gray-300 transition-colors"
+            >
               Terms of Service
             </Link>
-            <Link href="#" className="hover:text-gray-300 transition-colors">
+            <Link
+              href="#"
+              className="hover:text-gray-300 transition-colors"
+            >
               Sitemap
             </Link>
           </div>

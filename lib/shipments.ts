@@ -45,7 +45,6 @@ export const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-// Key helpers
 export const shipmentKey = (id: string) => `shipment:${id}`;
 export const shipmentsIndexKey = "shipments:index";
 
@@ -54,5 +53,5 @@ export function generateTrackingNumber(): string {
   const random = Array.from({ length: 8 }, () =>
     chars.charAt(Math.floor(Math.random() * chars.length))
   ).join("");
-  return `TGL-2026-${random}`;
+  return `CRG-2026-${random}`;
 }

@@ -49,8 +49,8 @@ export default function TrackPage() {
               Track Your Shipment
             </h1>
             <p className="text-gray-200 text-sm max-w-md mx-auto">
-              Enter the tracking number provided to you to get live status
-              updates on your package.
+              Enter the tracking number provided to you by ClearRoute Global
+              Logistics to get live status updates on your package.
             </p>
           </motion.div>
         </div>
@@ -88,7 +88,7 @@ export default function TrackPage() {
                 />
                 <input
                   type="text"
-                  placeholder="Enter your tracking number"
+                  placeholder="e.g. CRG-2026-XXXXXXXX"
                   value={trackingNumber}
                   onChange={(e) => {
                     setTrackingNumber(e.target.value.toUpperCase());
@@ -130,6 +130,24 @@ export default function TrackPage() {
             ))}
           </div>
         </motion.div>
+
+        {/* Help text */}
+        <p className="text-center text-xs text-gray-400 mt-5">
+          Need help? Contact us at{" "}
+          <a
+            href="mailto:support@clearrouteglobal.com"
+            className="text-[#D40511] hover:underline font-semibold"
+          >
+            support@clearrouteglobal.com
+          </a>{" "}
+          or call{" "}
+          <a
+            href="tel:+46766920874"
+            className="text-[#D40511] hover:underline font-semibold"
+          >
+            +46 766 920 874
+          </a>
+        </p>
       </div>
     </div>
   );

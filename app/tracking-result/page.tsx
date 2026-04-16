@@ -21,17 +21,25 @@ import TrackingTimeline from "@/components/TrackingTimeline";
 import type { Shipment } from "@/lib/shipments";
 
 const statusColors: Record<string, string> = {
-  "Order Placed": "bg-blue-100 text-blue-700",
-  "Picked Up": "bg-yellow-100 text-yellow-700",
-  "In Transit": "bg-orange-100 text-orange-700",
-  "Out for Delivery": "bg-purple-100 text-purple-700",
-  Delivered: "bg-green-100 text-green-700",
-  Exception: "bg-red-100 text-red-700",
+  "Order Placed":                   "bg-blue-100 text-blue-700",
+  "Picked Up":                      "bg-yellow-100 text-yellow-700",
+  "In Transit":                     "bg-orange-100 text-orange-700",
+  "Out for Delivery":               "bg-purple-100 text-purple-700",
+  "Delivered":                      "bg-green-100 text-green-700",
+  "Exception":                      "bg-red-100 text-red-700",
+  "On Hold":                        "bg-orange-100 text-orange-800",
+  "Customs Hold":                   "bg-red-100 text-red-800",
+  "Pending Customs Clearance":      "bg-amber-100 text-amber-800",
+  "Customs Documentation Required": "bg-rose-100 text-rose-800",
+  "Duty Payment Required":          "bg-orange-200 text-orange-900",
+  "Customs Cleared":                "bg-emerald-100 text-emerald-700",
+  "Released from Customs":          "bg-teal-100 text-teal-700",
+  "Seized by Customs":              "bg-red-200 text-red-900",
 };
 
-// Detect which API to call based on tracking number prefix
+// Route to correct API based on tracking number prefix
 function resolveTrackingAPI(number: string): string {
-  if (number.startsWith("TGX-")) {
+  if (number.startsWith("CRX-")) {
     return `/api/tracking-x?number=${encodeURIComponent(number)}`;
   }
   return `/api/track?number=${encodeURIComponent(number)}`;
@@ -55,11 +63,9 @@ function TrackingResultContent() {
 
     const fetchShipment = async () => {
       try {
-        // Route to correct API based on tracking number prefix
         const apiUrl = resolveTrackingAPI(number.toUpperCase().trim());
         const res = await fetch(apiUrl);
         const data = await res.json();
-
         if (!res.ok) {
           setError(data.error || "Shipment not found.");
         } else {
@@ -105,10 +111,21 @@ function TrackingResultContent() {
           <h2 className="text-xl font-black text-gray-900 mb-2">
             Shipment Not Found
           </h2>
-          <p className="text-gray-500 text-sm mb-6">{error}</p>
-          <p className="text-xs text-gray-400 mb-6">
+          <p className="text-gray-500 text-sm mb-3">{error}</p>
+          <p className="text-xs text-gray-400 mb-2">
             Tracking number searched:{" "}
-            <span className="font-mono font-bold text-gray-600">{number}</span>
+            <span className="font-mono font-bold text-gray-600">
+              {number}
+            </span>
+          </p>
+          <p className="text-xs text-gray-400 mb-6">
+            Need help? Contact{" "}
+            <a
+              href="mailto:support@clearrouteglobal.com"
+              className="text-[#D40511] font-semibold hover:underline"
+            >
+              support@clearrouteglobal.com
+            </a>
           </p>
           <button
             onClick={() => router.push("/track")}
@@ -124,6 +141,7 @@ function TrackingResultContent() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto">
+
         {/* Back button */}
         <button
           onClick={() => router.push("/track")}
@@ -147,6 +165,9 @@ function TrackingResultContent() {
               <p className="font-mono font-black text-xl text-gray-900">
                 {shipment.trackingNumber}
               </p>
+              <p className="text-xs text-gray-400 mt-1">
+                ClearRoute Global Logistics — Shipment Status
+              </p>
             </div>
             <span
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${
@@ -165,7 +186,8 @@ function TrackingResultContent() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* Shipment details */}
+
+          {/* Left — Shipment details */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -185,7 +207,6 @@ function TrackingResultContent() {
                   <p className="font-bold text-sm text-gray-900">
                     {shipment.senderName}
                   </p>
-                  {/* Phone — only shows if field exists */}
                   {"senderPhone" in shipment && shipment.senderPhone && (
                     <p className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
                       <Phone size={10} className="shrink-0" />
@@ -213,7 +234,6 @@ function TrackingResultContent() {
                   <p className="font-bold text-sm text-gray-900">
                     {shipment.receiverName}
                   </p>
-                  {/* Phone — only shows if field exists */}
                   {"receiverPhone" in shipment && shipment.receiverPhone && (
                     <p className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
                       <Phone size={10} className="shrink-0" />
@@ -257,7 +277,7 @@ function TrackingResultContent() {
             </div>
           </motion.div>
 
-          {/* Timeline */}
+          {/* Right — Timeline */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

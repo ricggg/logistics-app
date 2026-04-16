@@ -6,13 +6,13 @@ import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 
 export const metadata: Metadata = {
-  title: "Trac Global Logistics — Fast & Reliable Global Shipping Solutions",
+  title: "ClearRoute Global Logistics — Fast & Reliable Global Shipping Solutions",
   description:
     "Professional logistics services to 220+ countries. Express delivery, international shipping, air & ocean freight. Real-time tracking, 24/7 support, 99.8% on-time delivery.",
   keywords:
-    "logistics, shipping, freight, international delivery, express courier, supply chain, Trac Global Logistics",
+    "logistics, shipping, freight, international delivery, express courier, supply chain, ClearRoute Global Logistics",
   openGraph: {
-    title: "Trac Global Logistics — Global Shipping Experts",
+    title: "ClearRoute Global Logistics — Global Shipping Experts",
     description:
       "Fast, reliable shipping to 220+ countries. Track shipments in real-time.",
     type: "website",

@@ -142,7 +142,7 @@ const testimonials = [
   {
     name: "Sarah Johnson",
     role: "E-commerce Director, RetailPlus",
-    text: "Trac Global Logistics transformed our delivery operations. Delivery complaints dropped by 80% in the first month alone.",
+    text: "ClearRoute Global Logistics transformed our delivery operations. Delivery complaints dropped by 80% in the first month alone.",
     rating: 5,
     image:
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face&q=80",
@@ -232,7 +232,7 @@ const faqs = [
 ];
 
 // ─────────────────────────────────────────
-// FAQ ITEM COMPONENT
+// FAQ ITEM
 // ─────────────────────────────────────────
 
 function FAQItem({
@@ -374,7 +374,7 @@ export default function HomePage() {
                 transition={{ delay: 0.3, duration: 0.7 }}
                 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-5"
               >
-                Industrial Power.
+                Clear Path.
                 <br />
                 <span className="text-[#FFCC00]">Global Reach.</span>
                 <br />
@@ -388,8 +388,8 @@ export default function HomePage() {
                 className="text-gray-200 text-lg mb-8 leading-relaxed max-w-xl"
               >
                 From our high-volume distribution centres to your customer's
-                door — Trac Global Logistics delivers with speed, precision, and
-                full cargo visibility across 220+ countries.
+                door — ClearRoute Global Logistics delivers with speed,
+                precision, and full cargo visibility across 220+ countries.
               </motion.p>
 
               <motion.form
@@ -403,7 +403,7 @@ export default function HomePage() {
                   <Search size={18} className="text-gray-400 shrink-0" />
                   <input
                     type="text"
-                    placeholder="Enter your tracking number..."
+                    placeholder="Enter tracking number e.g. CRG-2026-XXXXXXXX"
                     value={trackingInput}
                     onChange={(e) => setTrackingInput(e.target.value)}
                     className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
@@ -517,8 +517,8 @@ export default function HomePage() {
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               From local express delivery to global freight forwarding — we
-              handle it all with precision, full cargo insurance, and guaranteed
-              delivery times.
+              handle it all with precision, full cargo insurance, and
+              guaranteed delivery times.
             </p>
           </motion.div>
 
@@ -654,16 +654,16 @@ export default function HomePage() {
               viewport={{ once: true }}
             >
               <span className="text-[#D40511] text-sm font-black uppercase tracking-widest">
-                About Trac Global Logistics
+                About ClearRoute Global Logistics
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-2 mb-5">
                 Trusted by 10,000+ Businesses Worldwide
               </h2>
               <p className="text-gray-600 leading-relaxed mb-5">
-                Since 2010, Trac Global Logistics has been at the forefront of
-                global logistics innovation. We combine cutting-edge technology
-                with a human touch to deliver packages safely and on time —
-                every single time.
+                Since 2010, ClearRoute Global Logistics has been at the
+                forefront of global logistics innovation. We combine
+                cutting-edge technology with a human touch to deliver packages
+                safely and on time — every single time.
               </p>
               <ul className="space-y-3 mb-8">
                 {[
@@ -801,7 +801,7 @@ export default function HomePage() {
       </section>
 
       {/* ══════════════════════════════════════
-          CONTACT FORM
+          CONTACT
       ══════════════════════════════════════ */}
       <section id="contact" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -819,15 +819,15 @@ export default function HomePage() {
                 Ready to Ship Smarter?
               </h2>
               <p className="text-gray-600 text-sm leading-relaxed mb-8">
-                Tell us about your shipping needs and our logistics experts will
-                get back to you within 24 hours with a tailored, no-obligation
-                quote.
+                Tell us about your shipping needs and our logistics experts
+                will get back to you within 24 hours with a tailored,
+                no-obligation quote.
               </p>
 
               <div className="rounded-xl overflow-hidden mb-8 shadow-md">
                 <img
                   src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&h=400&fit=crop&q=80"
-                  alt="Trac Global Logistics operations team"
+                  alt="ClearRoute Global Logistics operations team"
                   className="w-full h-56 object-cover"
                 />
               </div>
@@ -840,8 +840,10 @@ export default function HomePage() {
                   <div>
                     <p className="font-bold text-gray-900">Our Office</p>
                     <p className="text-gray-600 leading-relaxed">
-                      Klarabergsviadukten 63<br />
-                      101 23 Stockholm<br />
+                      Klarabergsviadukten 63
+                      <br />
+                      101 23 Stockholm
+                      <br />
                       Sweden
                     </p>
                   </div>
@@ -867,10 +869,10 @@ export default function HomePage() {
                   <div>
                     <p className="font-bold text-gray-900">Email Support</p>
                     <a
-                      href="mailto:support@tracgloballogistics.com"
+                      href="mailto:support@clearrouteglobal.com"
                       className="text-[#D40511] font-semibold hover:underline"
                     >
-                      support@tracgloballogistics.com
+                      support@clearrouteglobal.com
                     </a>
                   </div>
                 </div>
@@ -888,7 +890,7 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right — form */}
+            {/* Form */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -969,11 +971,15 @@ export default function HomePage() {
                   >
                     <option value="">Select a service</option>
                     <option value="express">Express Delivery</option>
-                    <option value="international">International Shipping</option>
+                    <option value="international">
+                      International Shipping
+                    </option>
                     <option value="air">Air Freight</option>
                     <option value="ocean">Ocean Freight</option>
                     <option value="warehousing">Warehousing</option>
-                    <option value="supply-chain">Supply Chain Solutions</option>
+                    <option value="supply-chain">
+                      Supply Chain Solutions
+                    </option>
                   </select>
                 </div>
                 <div>
@@ -1050,8 +1056,8 @@ export default function HomePage() {
               Frequently Asked Questions
             </h2>
             <p className="text-gray-600 text-sm">
-              Got questions? We have answers. Can not find what you are looking
-              for?{" "}
+              Got questions? We have answers. Can not find what you are
+              looking for?{" "}
               <a
                 href="#contact"
                 className="text-[#D40511] font-semibold hover:underline"
@@ -1106,8 +1112,9 @@ export default function HomePage() {
               Ready to Ship with Confidence?
             </h2>
             <p className="text-red-100 mb-8 text-lg max-w-2xl mx-auto">
-              Join 10,000+ businesses who trust Trac Global Logistics for their
-              global logistics needs. Get your free quote in under 60 seconds.
+              Join 10,000+ businesses who trust ClearRoute Global Logistics
+              for their global shipping needs. Get your free quote in under
+              60 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

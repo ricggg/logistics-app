@@ -15,18 +15,12 @@ export default function Navbar() {
   const isAdmin = pathname?.startsWith("/admin");
   const isHome = pathname === "/";
 
-  const handleAnchorClick = (
-    e: React.MouseEvent,
-    sectionId: string
-  ) => {
+  const handleAnchorClick = (e: React.MouseEvent, sectionId: string) => {
     e.preventDefault();
     setOpen(false);
-
     if (isHome) {
       const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     } else {
       router.push(`/#${sectionId}`);
     }
@@ -46,12 +40,12 @@ export default function Navbar() {
               <span className="hidden sm:inline">+46 766 920 874</span>
             </a>
             <a
-              href="mailto:support@tracgloballogistics.com"
+              href="mailto:support@clearrouteglobal.com"
               className="flex items-center gap-1.5 hover:text-[#FFCC00] transition-colors"
             >
               <Mail size={12} />
               <span className="hidden md:inline">
-                support@tracgloballogistics.com
+                support@clearrouteglobal.com
               </span>
             </a>
           </div>
@@ -70,46 +64,41 @@ export default function Navbar() {
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <div className="bg-[#D40511] px-3 py-1.5 rounded shadow-md">
                 <span className="text-white font-black text-xl tracking-tighter leading-none">
-                  TRAC
+                  CLEAR
                 </span>
               </div>
               <span className="font-black text-xl tracking-tight text-[#D40511] leading-none">
-                GLOBAL LOGISTICS
+                ROUTE GLOBAL
               </span>
             </Link>
 
             {/* Desktop nav */}
             {!isAdmin && (
               <div className="hidden md:flex items-center gap-1">
-
                 <button
                   onClick={(e) => handleAnchorClick(e, "services")}
                   className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-[#D40511] hover:bg-gray-50 rounded transition-colors duration-150 cursor-pointer"
                 >
                   Services
                 </button>
-
                 <Link
                   href="/track"
                   className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-[#D40511] hover:bg-gray-50 rounded transition-colors duration-150"
                 >
                   Tracking
                 </Link>
-
                 <button
                   onClick={(e) => handleAnchorClick(e, "about")}
                   className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-[#D40511] hover:bg-gray-50 rounded transition-colors duration-150 cursor-pointer"
                 >
                   About
                 </button>
-
                 <button
                   onClick={(e) => handleAnchorClick(e, "contact")}
                   className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-[#D40511] hover:bg-gray-50 rounded transition-colors duration-150 cursor-pointer"
                 >
                   Contact
                 </button>
-
               </div>
             )}
 
@@ -155,14 +144,12 @@ export default function Navbar() {
             className="bg-white border-b border-gray-200 md:hidden overflow-hidden shadow-lg"
           >
             <div className="px-4 py-4 flex flex-col gap-1">
-
               <button
                 onClick={(e) => handleAnchorClick(e, "services")}
                 className="block w-full text-left px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#D40511] rounded transition-colors cursor-pointer"
               >
                 Services
               </button>
-
               <Link
                 href="/track"
                 onClick={() => setOpen(false)}
@@ -170,21 +157,18 @@ export default function Navbar() {
               >
                 Tracking
               </Link>
-
               <button
                 onClick={(e) => handleAnchorClick(e, "about")}
                 className="block w-full text-left px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#D40511] rounded transition-colors cursor-pointer"
               >
                 About
               </button>
-
               <button
                 onClick={(e) => handleAnchorClick(e, "contact")}
                 className="block w-full text-left px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#D40511] rounded transition-colors cursor-pointer"
               >
                 Contact
               </button>
-
               <Link
                 href="/track"
                 onClick={() => setOpen(false)}
@@ -193,7 +177,6 @@ export default function Navbar() {
                 <Package size={16} />
                 Track Shipment
               </Link>
-
             </div>
           </motion.div>
         )}
