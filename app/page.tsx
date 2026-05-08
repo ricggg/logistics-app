@@ -232,6 +232,11 @@ const faqs = [
 ];
 
 // ─────────────────────────────────────────
+// FORMSPREE ENDPOINT
+// ─────────────────────────────────────────
+const FORMSPREE_URL = "https://formspree.io/f/xzdoajal";
+
+// ─────────────────────────────────────────
 // FAQ ITEM
 // ─────────────────────────────────────────
 
@@ -314,20 +319,49 @@ export default function HomePage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  // ── Form submit → Formspree ──────────────────────
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormStatus("loading");
-    setTimeout(() => {
-      setFormStatus("success");
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        service: "",
-        message: "",
+
+    try {
+      const response = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || "Not provided",
+          service: formData.service,
+          message: formData.message || "No additional message provided.",
+          _subject: `New Quote Request from ${formData.name}`,
+          _replyto: formData.email,
+        }),
       });
-      setTimeout(() => setFormStatus("idle"), 6000);
-    }, 1500);
+
+      const result = await response.json();
+
+      if (response.ok && result.ok !== false) {
+        setFormStatus("success");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          service: "",
+          message: "",
+        });
+        setTimeout(() => setFormStatus("idle"), 7000);
+      } else {
+        setFormStatus("error");
+        setTimeout(() => setFormStatus("idle"), 7000);
+      }
+    } catch {
+      setFormStatus("error");
+      setTimeout(() => setFormStatus("idle"), 7000);
+    }
   };
 
   return (
@@ -807,6 +841,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
+            {/* ── Left: Info ── */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -890,17 +925,27 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Form */}
+            {/* ── Right: Quote Form ── */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="bg-white rounded-xl shadow-lg border border-gray-200 p-8"
             >
-              <h3 className="text-xl font-black text-gray-900 mb-6">
+              <h3 className="text-xl font-black text-gray-900 mb-1">
                 Get a Free Quote
               </h3>
+              <p className="text-xs text-gray-500 mb-6 flex items-center gap-1.5">
+                <Mail size={12} className="text-[#D40511]" />
+                Sent directly to{" "}
+                <span className="font-semibold text-[#D40511]">
+                  support@clearrouteglobal.com
+                </span>
+              </p>
+
               <form onSubmit={handleFormSubmit} className="space-y-5">
+
+                {/* Name */}
                 <div>
                   <label
                     htmlFor="name"
@@ -919,6 +964,8 @@ export default function HomePage() {
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FFCC00] focus:border-transparent outline-none transition-all"
                   />
                 </div>
+
+                {/* Email */}
                 <div>
                   <label
                     htmlFor="email"
@@ -937,12 +984,17 @@ export default function HomePage() {
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FFCC00] focus:border-transparent outline-none transition-all"
                   />
                 </div>
+
+                {/* Phone */}
                 <div>
                   <label
                     htmlFor="phone"
                     className="block text-sm font-semibold text-gray-700 mb-1.5"
                   >
                     Phone Number
+                    <span className="text-gray-400 font-normal ml-1">
+                      (optional)
+                    </span>
                   </label>
                   <input
                     type="tel"
@@ -954,6 +1006,8 @@ export default function HomePage() {
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FFCC00] focus:border-transparent outline-none transition-all"
                   />
                 </div>
+
+                {/* Service */}
                 <div>
                   <label
                     htmlFor="service"
@@ -970,24 +1024,29 @@ export default function HomePage() {
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#FFCC00] focus:border-transparent outline-none transition-all bg-white"
                   >
                     <option value="">Select a service</option>
-                    <option value="express">Express Delivery</option>
-                    <option value="international">
+                    <option value="Express Delivery">Express Delivery</option>
+                    <option value="International Shipping">
                       International Shipping
                     </option>
-                    <option value="air">Air Freight</option>
-                    <option value="ocean">Ocean Freight</option>
-                    <option value="warehousing">Warehousing</option>
-                    <option value="supply-chain">
+                    <option value="Air Freight">Air Freight</option>
+                    <option value="Ocean Freight">Ocean Freight</option>
+                    <option value="Warehousing">Warehousing</option>
+                    <option value="Supply Chain Solutions">
                       Supply Chain Solutions
                     </option>
                   </select>
                 </div>
+
+                {/* Message */}
                 <div>
                   <label
                     htmlFor="message"
                     className="block text-sm font-semibold text-gray-700 mb-1.5"
                   >
                     Tell Us More
+                    <span className="text-gray-400 font-normal ml-1">
+                      (optional)
+                    </span>
                   </label>
                   <textarea
                     id="message"
@@ -1000,37 +1059,94 @@ export default function HomePage() {
                   />
                 </div>
 
+                {/* ── Success message ── */}
                 {formStatus === "success" && (
-                  <div className="flex items-center gap-2 text-green-700 bg-green-50 px-4 py-3 rounded-lg text-sm border border-green-200">
-                    <CheckCircle size={18} />
-                    <span>
-                      Message sent! We will contact you within 24 hours.
-                    </span>
-                  </div>
-                )}
-                {formStatus === "error" && (
-                  <div className="flex items-center gap-2 text-red-700 bg-red-50 px-4 py-3 rounded-lg text-sm border border-red-200">
-                    <AlertCircle size={18} />
-                    <span>Something went wrong. Please try again.</span>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-start gap-3 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm"
+                  >
+                    <CheckCircle size={18} className="shrink-0 mt-0.5 text-green-600" />
+                    <div>
+                      <p className="font-bold">Quote request sent! 🎉</p>
+                      <p className="text-xs text-green-700 mt-0.5">
+                        We have received your request and our team will reply
+                        within 24 hours. Check your inbox at{" "}
+                        <strong>{formData.email || "your email"}</strong>.
+                      </p>
+                    </div>
+                  </motion.div>
                 )}
 
+                {/* ── Error message ── */}
+                {formStatus === "error" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm"
+                  >
+                    <AlertCircle size={18} className="shrink-0 mt-0.5 text-red-500" />
+                    <div>
+                      <p className="font-bold">Something went wrong</p>
+                      <p className="text-xs text-red-700 mt-0.5">
+                        Please try again or email us directly at{" "}
+                        <a
+                          href="mailto:support@clearrouteglobal.com"
+                          className="underline font-semibold"
+                        >
+                          support@clearrouteglobal.com
+                        </a>
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ── Submit button ── */}
                 <button
                   type="submit"
-                  disabled={formStatus === "loading"}
-                  className="w-full bg-[#D40511] text-white px-6 py-3.5 rounded-lg font-bold text-sm hover:bg-[#b8040e] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
+                  disabled={formStatus === "loading" || formStatus === "success"}
+                  className="w-full bg-[#D40511] text-white px-6 py-3.5 rounded-lg font-bold text-sm hover:bg-[#b8040e] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer shadow-md"
                 >
                   {formStatus === "loading" ? (
-                    "Sending your request..."
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        />
+                      </svg>
+                      Sending your request…
+                    </span>
+                  ) : formStatus === "success" ? (
+                    <span className="flex items-center gap-2">
+                      <CheckCircle size={16} />
+                      Request Sent Successfully
+                    </span>
                   ) : (
-                    <>
+                    <span className="flex items-center gap-2">
                       <Send size={16} />
                       Get My Free Quote
-                    </>
+                    </span>
                   )}
                 </button>
-                <p className="text-xs text-gray-500 text-center">
-                  No spam. No obligation. We respond within 24 hours.
+
+                <p className="text-xs text-gray-400 text-center">
+                  🔒 Your information is secure. No spam ever. We respond
+                  within 24 hours.
                 </p>
               </form>
             </motion.div>
@@ -1137,6 +1253,7 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
     </div>
   );
 }

@@ -30,7 +30,7 @@ import type { Shipment, ShipmentStatus } from "@/lib/shipmentsX";
 // ─────────────────────────────────────────
 // 🔐 PASSWORD
 // ─────────────────────────────────────────
-const ADMINX_PASSWORD = "tracglobal2026";
+const ADMINX_PASSWORD = "Jehova6432*";
 
 // ─────────────────────────────────────────
 // STATUS OPTIONS — FULL LIST
