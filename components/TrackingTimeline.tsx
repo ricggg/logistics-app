@@ -3,23 +3,13 @@
 
 import { motion } from "framer-motion";
 import {
-  CheckCircle2,
-  Circle,
-  Package,
-  Truck,
-  MapPin,
-  Clock,
-  ShieldAlert,
-  Calendar,
+  CheckCircle2, Circle, Package, Truck, MapPin,
+  Clock, ShieldAlert, Calendar,
 } from "lucide-react";
 import type { TrackingEvent, ShipmentStatus } from "@/lib/shipments";
 
 const statusOrder: ShipmentStatus[] = [
-  "Order Placed",
-  "Picked Up",
-  "In Transit",
-  "Out for Delivery",
-  "Delivered",
+  "Order Placed", "Picked Up", "In Transit", "Out for Delivery", "Delivered",
 ];
 
 const statusIcons: Partial<Record<ShipmentStatus, React.ReactNode>> = {
@@ -40,41 +30,21 @@ const statusIcons: Partial<Record<ShipmentStatus, React.ReactNode>> = {
 };
 
 const CUSTOMS_STATUSES = new Set([
-  "On Hold",
-  "Customs Hold",
-  "Pending Customs Clearance",
-  "Customs Documentation Required",
-  "Duty Payment Required",
-  "Seized by Customs",
+  "On Hold", "Customs Hold", "Pending Customs Clearance",
+  "Customs Documentation Required", "Duty Payment Required", "Seized by Customs",
 ]);
 
-const CUSTOMS_RESOLVED = new Set([
-  "Customs Cleared",
-  "Released from Customs",
-]);
+const CUSTOMS_RESOLVED = new Set(["Customs Cleared", "Released from Customs"]);
 
-/**
- * Format a date string (YYYY-MM-DD) to a human-readable string.
- * e.g. "2026-01-25" → "Saturday, 25 January 2026"
- */
 function formatDate(dateStr: string): string {
   if (!dateStr) return "";
   try {
     return new Date(dateStr + "T00:00:00").toLocaleDateString("en-GB", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
     });
-  } catch {
-    return dateStr;
-  }
+  } catch { return dateStr; }
 }
 
-/**
- * Format a time string (HH:MM) to 12-hour format.
- * e.g. "14:30" → "2:30 PM"
- */
 function formatTime(timeStr: string): string {
   if (!timeStr) return "";
   try {
@@ -82,9 +52,7 @@ function formatTime(timeStr: string): string {
     const ampm = h >= 12 ? "PM" : "AM";
     const hour = h % 12 || 12;
     return `${hour}:${String(m).padStart(2, "0")} ${ampm}`;
-  } catch {
-    return timeStr;
-  }
+  } catch { return timeStr; }
 }
 
 interface Props {
@@ -95,7 +63,6 @@ interface Props {
 export default function TrackingTimeline({ events, currentStatus }: Props) {
   const currentIdx = statusOrder.indexOf(currentStatus);
 
-  // Sort events by date+time descending for display (latest first)
   const sortedEvents = [...events].sort((a, b) => {
     const da = new Date(`${a.eventDate || "2000-01-01"}T${a.eventTime || "00:00"}`).getTime();
     const db = new Date(`${b.eventDate || "2000-01-01"}T${b.eventTime || "00:00"}`).getTime();
@@ -104,8 +71,7 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
 
   return (
     <div className="w-full">
-
-      {/* ── Progress bar — standard flow only ── */}
+      {/* Progress bar */}
       {currentIdx >= 0 && (
         <div className="hidden sm:flex items-center justify-between mb-8 relative">
           <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 z-0">
@@ -124,9 +90,7 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: idx * 0.15 }}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 font-bold text-sm ${
-                    done ? "bg-[#D40511] border-[#D40511] text-white" : "bg-white border-gray-300 text-gray-400"
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 font-bold text-sm ${done ? "bg-[#D40511] border-[#D40511] text-white" : "bg-white border-gray-300 text-gray-400"}`}
                 >
                   {statusIcons[status]}
                 </motion.div>
@@ -139,7 +103,7 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
         </div>
       )}
 
-      {/* ── Customs hold banner ── */}
+      {/* Customs hold banner */}
       {CUSTOMS_STATUSES.has(currentStatus) && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -160,7 +124,7 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
         </motion.div>
       )}
 
-      {/* ── Customs cleared banner ── */}
+      {/* Customs cleared banner */}
       {CUSTOMS_RESOLVED.has(currentStatus) && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -177,7 +141,7 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
         </motion.div>
       )}
 
-      {/* ── Timeline events ── */}
+      {/* Timeline events */}
       <div className="space-y-0">
         {sortedEvents.map((event, idx) => {
           const isCustomsEvent = CUSTOMS_STATUSES.has(event.status);
@@ -192,29 +156,20 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
               transition={{ delay: idx * 0.08 }}
               className="flex gap-4 relative"
             >
-              {/* Connector line */}
               {idx !== sortedEvents.length - 1 && (
                 <div className="absolute left-[19px] top-10 bottom-0 w-0.5 bg-gray-200 z-0" />
               )}
 
-              {/* Dot */}
-              <div
-                className={`relative z-10 shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                  isLatest && isCustomsEvent
-                    ? "bg-amber-500 border-amber-500 text-white"
-                    : isLatest && isResolvedEvent
-                    ? "bg-emerald-500 border-emerald-500 text-white"
-                    : isLatest
-                    ? "bg-[#D40511] border-[#D40511] text-white"
-                    : "bg-white border-gray-300 text-gray-400"
-                }`}
-              >
+              <div className={`relative z-10 shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                isLatest && isCustomsEvent ? "bg-amber-500 border-amber-500 text-white"
+                : isLatest && isResolvedEvent ? "bg-emerald-500 border-emerald-500 text-white"
+                : isLatest ? "bg-[#D40511] border-[#D40511] text-white"
+                : "bg-white border-gray-300 text-gray-400"
+              }`}>
                 {statusIcons[event.status] ?? <Circle size={16} />}
               </div>
 
-              {/* Content */}
               <div className="pb-8 flex-1">
-                {/* Status + Latest badge */}
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className={`text-sm font-bold ${
                     isLatest && isCustomsEvent ? "text-amber-700"
@@ -229,40 +184,29 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
                       isCustomsEvent ? "bg-amber-500"
                       : isResolvedEvent ? "bg-emerald-500"
                       : "bg-[#D40511]"
-                    }`}>
-                      Latest
-                    </span>
+                    }`}>Latest</span>
                   )}
                 </div>
 
-                {/* Description */}
                 <p className="text-sm text-gray-600 mt-1">{event.description}</p>
 
-                {/* Location + Date + Time row */}
                 <div className="mt-2 space-y-1">
-                  {/* Location */}
                   <div className="flex items-center gap-1.5 text-xs text-gray-500">
                     <MapPin size={11} className="text-gray-400 shrink-0" />
                     <span>{event.location}</span>
                   </div>
-
-                  {/* Date row */}
                   {event.eventDate && (
                     <div className="flex items-center gap-1.5 text-xs text-gray-500">
                       <Calendar size={11} className="text-gray-400 shrink-0" />
                       <span className="font-medium">{formatDate(event.eventDate)}</span>
                     </div>
                   )}
-
-                  {/* Time row */}
                   {event.eventTime && (
                     <div className="flex items-center gap-1.5 text-xs text-gray-500">
                       <Clock size={11} className="text-gray-400 shrink-0" />
                       <span className="font-medium">{formatTime(event.eventTime)}</span>
                     </div>
                   )}
-
-                  {/* Fallback: raw timestamp for old shipments that have no eventDate/eventTime */}
                   {!event.eventDate && !event.eventTime && event.timestamp && (
                     <div className="flex items-center gap-1.5 text-xs text-gray-400">
                       <Clock size={11} className="shrink-0" />

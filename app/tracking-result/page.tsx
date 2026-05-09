@@ -5,17 +5,8 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Package,
-  MapPin,
-  User,
-  Calendar,
-  Weight,
-  ArrowLeft,
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Loader2,
-  Phone,
+  Package, MapPin, User, Calendar, Weight,
+  ArrowLeft, AlertCircle, CheckCircle2, Clock, Loader2, Phone,
 } from "lucide-react";
 import TrackingTimeline from "@/components/TrackingTimeline";
 import type { Shipment } from "@/lib/shipments";
@@ -48,10 +39,7 @@ function formatEstDelivery(date: string, time?: string): string {
   if (!date) return "—";
   try {
     const d = new Date(date + "T00:00:00").toLocaleDateString("en-GB", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
     });
     if (time) {
       const [h, m] = time.split(":").map(Number);
@@ -60,9 +48,7 @@ function formatEstDelivery(date: string, time?: string): string {
       return `${d} at ${hour}:${String(m).padStart(2, "0")} ${ampm}`;
     }
     return d;
-  } catch {
-    return date;
-  }
+  } catch { return date; }
 }
 
 function TrackingResultContent() {
@@ -75,26 +61,16 @@ function TrackingResultContent() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!number) {
-      setError("No tracking number provided.");
-      setLoading(false);
-      return;
-    }
+    if (!number) { setError("No tracking number provided."); setLoading(false); return; }
     const fetchShipment = async () => {
       try {
         const apiUrl = resolveTrackingAPI(number.toUpperCase().trim());
         const res = await fetch(apiUrl);
         const data = await res.json();
-        if (!res.ok) {
-          setError(data.error || "Shipment not found.");
-        } else {
-          setShipment(data.shipment);
-        }
-      } catch {
-        setError("Failed to fetch tracking data. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+        if (!res.ok) { setError(data.error || "Shipment not found."); }
+        else { setShipment(data.shipment); }
+      } catch { setError("Failed to fetch tracking data. Please try again."); }
+      finally { setLoading(false); }
     };
     fetchShipment();
   }, [number]);
@@ -133,12 +109,9 @@ function TrackingResultContent() {
               support@clearrouteglobal.com
             </a>
           </p>
-          <button
-            onClick={() => router.push("/track")}
+          <button onClick={() => router.push("/track")}
             className="bg-[#D40511] text-white px-6 py-3 rounded-lg font-bold text-sm hover:bg-[#b8040e] transition-colors"
-          >
-            Try Again
-          </button>
+          >Try Again</button>
         </motion.div>
       </div>
     );
@@ -147,16 +120,13 @@ function TrackingResultContent() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto">
-
-        {/* Back */}
-        <button
-          onClick={() => router.push("/track")}
+        <button onClick={() => router.push("/track")}
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#D40511] mb-6 transition-colors font-semibold"
         >
           <ArrowLeft size={16} /> Back to tracking
         </button>
 
-        {/* Header */}
+        {/* Header card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -166,13 +136,9 @@ function TrackingResultContent() {
             <div>
               <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Tracking Number</p>
               <p className="font-mono font-black text-xl text-gray-900">{shipment.trackingNumber}</p>
-              <p className="text-xs text-gray-400 mt-1">Trac Global Logistics — Shipment Status</p>
+              <p className="text-xs text-gray-400 mt-1">ClearRoute Global Logistics — Shipment Status</p>
             </div>
-            <span
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${
-                statusColors[shipment.currentStatus] ?? "bg-gray-100 text-gray-700"
-              }`}
-            >
+            <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${statusColors[shipment.currentStatus] ?? "bg-gray-100 text-gray-700"}`}>
               {shipment.currentStatus === "Delivered" ? <CheckCircle2 size={14} /> : <Clock size={14} />}
               {shipment.currentStatus}
             </span>
@@ -180,7 +146,6 @@ function TrackingResultContent() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-
           {/* Left — details */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}

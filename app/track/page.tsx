@@ -18,9 +18,7 @@ export default function TrackPage() {
       return;
     }
     setError("");
-    router.push(
-      `/tracking-result?number=${encodeURIComponent(trackingNumber.trim())}`
-    );
+    router.push(`/tracking-result?number=${encodeURIComponent(trackingNumber.trim())}`);
   };
 
   return (
@@ -29,28 +27,20 @@ export default function TrackPage() {
       <div
         className="relative py-24 flex items-center justify-center"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1600&q=80')",
+          backgroundImage: "url('https://images.unsplash.com/photo-1494412651409-8963ce7935a7?w=1600&q=80')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 bg-black/65" />
         <div className="relative z-10 text-center px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="inline-block bg-[#FFCC00] text-[#1a1a1a] text-xs font-black px-3 py-1 rounded mb-4 uppercase tracking-widest">
               Real-Time Tracking
             </span>
-            <h1 className="text-4xl sm:text-5xl font-black text-white mb-3">
-              Track Your Shipment
-            </h1>
+            <h1 className="text-4xl sm:text-5xl font-black text-white mb-3">Track Your Shipment</h1>
             <p className="text-gray-200 text-sm max-w-md mx-auto">
-              Enter the tracking number provided to you by ClearRoute Global
-              Logistics to get live status updates on your package.
+              Enter the tracking number provided to you by ClearRoute Global Logistics to get live status updates on your package.
             </p>
           </motion.div>
         </div>
@@ -70,47 +60,33 @@ export default function TrackPage() {
             </div>
             <div>
               <h2 className="font-black text-gray-900">Shipment Tracking</h2>
-              <p className="text-xs text-gray-500">
-                Track up to 1 shipment at a time
-              </p>
+              <p className="text-xs text-gray-500">Track up to 1 shipment at a time</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Tracking Number
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Tracking Number</label>
               <div className="relative">
-                <Search
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                />
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="e.g. CRG-2026-XXXXXXXX"
                   value={trackingNumber}
-                  onChange={(e) => {
-                    setTrackingNumber(e.target.value.toUpperCase());
-                    setError("");
-                  }}
+                  onChange={(e) => { setTrackingNumber(e.target.value.toUpperCase()); setError(""); }}
                   className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-lg text-sm focus:border-[#D40511] outline-none transition-colors font-mono"
                 />
               </div>
               {error && (
                 <p className="flex items-center gap-1 text-red-500 text-xs mt-2">
-                  <AlertCircle size={12} />
-                  {error}
+                  <AlertCircle size={12} /> {error}
                 </p>
               )}
             </div>
-
-            <button
-              type="submit"
+            <button type="submit"
               className="w-full bg-[#D40511] text-white py-3.5 rounded-lg font-bold text-sm hover:bg-[#b8040e] transition-colors flex items-center justify-center gap-2"
             >
-              <Search size={16} />
-              Track Shipment
+              <Search size={16} /> Track Shipment
             </button>
           </form>
 
@@ -121,30 +97,20 @@ export default function TrackPage() {
               { icon: Package, label: "All Shipment Types" },
             ].map(({ icon: Icon, label }) => (
               <div key={label} className="text-xs text-gray-500">
-                <Icon
-                  size={20}
-                  className="mx-auto mb-1.5 text-[#D40511]"
-                />
+                <Icon size={20} className="mx-auto mb-1.5 text-[#D40511]" />
                 {label}
               </div>
             ))}
           </div>
         </motion.div>
 
-        {/* Help text */}
         <p className="text-center text-xs text-gray-400 mt-5">
           Need help? Contact us at{" "}
-          <a
-            href="mailto:support@clearrouteglobal.com"
-            className="text-[#D40511] hover:underline font-semibold"
-          >
+          <a href="mailto:support@clearrouteglobal.com" className="text-[#D40511] hover:underline font-semibold">
             support@clearrouteglobal.com
           </a>{" "}
           or call{" "}
-          <a
-            href="tel:+46766920874"
-            className="text-[#D40511] hover:underline font-semibold"
-          >
+          <a href="tel:+46766920874" className="text-[#D40511] hover:underline font-semibold">
             +46 766 920 874
           </a>
         </p>

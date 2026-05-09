@@ -148,7 +148,7 @@ const testimonials = [
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face&q=80",
   },
   {
-    name: "Michael Okonkwo",
+    name: "Michael Brent",
     role: "CEO, AfroTrade International",
     text: "The best logistics partner we have had in 10 years. Fast, transparent, and the team genuinely cares about our business.",
     rating: 5,

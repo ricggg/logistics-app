@@ -1,11 +1,6 @@
 // app/api/shipments/[id]/events/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import {
-  redis,
-  shipmentKey,
-  buildTimestamp,
-  Shipment,
-} from "@/lib/shipments";
+import { redis, shipmentKey, Shipment } from "@/lib/shipments";
 
 export async function DELETE(
   req: NextRequest,
@@ -22,30 +17,38 @@ export async function DELETE(
 
     const body = await req.json();
     const { eventIndex } = body;
+    const idx = Number(eventIndex);
 
-    if (eventIndex === undefined || eventIndex < 0 || eventIndex >= shipment.events.length) {
-      return NextResponse.json({ error: "Invalid eventIndex." }, { status: 400 });
+    if (
+      eventIndex === undefined ||
+      isNaN(idx) ||
+      idx < 0 ||
+      idx >= shipment.events.length
+    ) {
+      return NextResponse.json(
+        { error: `Invalid eventIndex: ${eventIndex}` },
+        { status: 400 }
+      );
     }
 
-    const events = shipment.events.filter((_, i) => i !== eventIndex);
+    const events = shipment.events.filter((_, i) => i !== idx);
 
-    // Recalculate currentStatus from remaining events (latest by date/time)
+    // Recalculate currentStatus from remaining events
     let currentStatus = shipment.currentStatus;
     if (events.length > 0) {
-      const sorted = [...events].sort((a, b) => {
-        const da = new Date(`${a.eventDate || "2000-01-01"}T${a.eventTime || "00:00"}`).getTime();
-        const db = new Date(`${b.eventDate || "2000-01-01"}T${b.eventTime || "00:00"}`).getTime();
-        return db - da;
+      const latestEvent = [...events].reduce((latest, ev) => {
+        const evTime = new Date(
+          `${ev.eventDate || "2000-01-01"}T${ev.eventTime || "00:00"}`
+        ).getTime();
+        const latestTime = new Date(
+          `${latest.eventDate || "2000-01-01"}T${latest.eventTime || "00:00"}`
+        ).getTime();
+        return evTime > latestTime ? ev : latest;
       });
-      currentStatus = sorted[0].status;
+      currentStatus = latestEvent.status;
     }
 
-    const updated: Shipment = {
-      ...shipment,
-      currentStatus,
-      events,
-    };
-
+    const updated: Shipment = { ...shipment, currentStatus, events };
     await redis.set(shipmentKey(trackingNumber), updated);
     return NextResponse.json({ shipment: updated });
   } catch (error) {
