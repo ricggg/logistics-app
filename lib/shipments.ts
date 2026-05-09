@@ -20,7 +20,9 @@ export type ShipmentStatus =
 export interface TrackingEvent {
   status: ShipmentStatus;
   location: string;
-  timestamp: string;
+  timestamp: string;   // display string e.g. "25/01/2026, 14:30"
+  eventDate: string;   // ISO date  e.g. "2026-01-25"
+  eventTime: string;   // 24h time  e.g. "14:30"
   description: string;
 }
 
@@ -35,6 +37,7 @@ export interface Shipment {
   packageDescription: string;
   weight: string;
   estimatedDelivery: string;
+  estimatedDeliveryTime: string; // e.g. "14:00"
   currentStatus: ShipmentStatus;
   events: TrackingEvent[];
   createdAt: string;
@@ -54,4 +57,23 @@ export function generateTrackingNumber(): string {
     chars.charAt(Math.floor(Math.random() * chars.length))
   ).join("");
   return `CRG-2026-${random}`;
+}
+
+/**
+ * Build a human-readable timestamp from a date string + time string.
+ * Falls back to "now" if either is missing.
+ */
+export function buildTimestamp(date: string, time: string): string {
+  if (date && time) {
+    const dt = new Date(`${date}T${time}:00`);
+    return dt.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
+  return new Date().toLocaleString("en-GB");
 }

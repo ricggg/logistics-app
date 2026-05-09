@@ -5,6 +5,7 @@ import {
   shipmentKey,
   shipmentsIndexKey,
   generateTrackingNumber,
+  buildTimestamp,
   Shipment,
   TrackingEvent,
 } from "@/lib/shipments";
@@ -52,6 +53,10 @@ export async function POST(req: NextRequest) {
       packageDescription,
       weight,
       estimatedDelivery,
+      estimatedDeliveryTime,
+      // first event date/time (the "Order Placed" event)
+      orderDate,
+      orderTime,
     } = body;
 
     if (
@@ -74,10 +79,16 @@ export async function POST(req: NextRequest) {
     const trackingNumber = generateTrackingNumber();
     const now = new Date().toISOString();
 
+    // Use admin-supplied date/time or fall back to now
+    const evDate = orderDate || new Date().toISOString().slice(0, 10);
+    const evTime = orderTime || new Date().toTimeString().slice(0, 5);
+
     const firstEvent: TrackingEvent = {
       status: "Order Placed",
       location: senderAddress,
-      timestamp: new Date().toLocaleString("en-GB"),
+      timestamp: buildTimestamp(evDate, evTime),
+      eventDate: evDate,
+      eventTime: evTime,
       description: "Shipment order created and confirmed.",
     };
 
@@ -92,6 +103,7 @@ export async function POST(req: NextRequest) {
       packageDescription,
       weight,
       estimatedDelivery,
+      estimatedDeliveryTime: estimatedDeliveryTime || "",
       currentStatus: "Order Placed",
       events: [firstEvent],
       createdAt: now,

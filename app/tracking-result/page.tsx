@@ -37,12 +37,32 @@ const statusColors: Record<string, string> = {
   "Seized by Customs":              "bg-red-200 text-red-900",
 };
 
-// Route to correct API based on tracking number prefix
 function resolveTrackingAPI(number: string): string {
   if (number.startsWith("CRX-")) {
     return `/api/tracking-x?number=${encodeURIComponent(number)}`;
   }
   return `/api/track?number=${encodeURIComponent(number)}`;
+}
+
+function formatEstDelivery(date: string, time?: string): string {
+  if (!date) return "—";
+  try {
+    const d = new Date(date + "T00:00:00").toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    if (time) {
+      const [h, m] = time.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const hour = h % 12 || 12;
+      return `${d} at ${hour}:${String(m).padStart(2, "0")} ${ampm}`;
+    }
+    return d;
+  } catch {
+    return date;
+  }
 }
 
 function TrackingResultContent() {
@@ -60,7 +80,6 @@ function TrackingResultContent() {
       setLoading(false);
       return;
     }
-
     const fetchShipment = async () => {
       try {
         const apiUrl = resolveTrackingAPI(number.toUpperCase().trim());
@@ -77,7 +96,6 @@ function TrackingResultContent() {
         setLoading(false);
       }
     };
-
     fetchShipment();
   }, [number]);
 
@@ -85,13 +103,8 @@ function TrackingResultContent() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Loader2
-            size={40}
-            className="animate-spin text-[#D40511] mx-auto mb-4"
-          />
-          <p className="text-gray-600 font-semibold">
-            Fetching shipment data...
-          </p>
+          <Loader2 size={40} className="animate-spin text-[#D40511] mx-auto mb-4" />
+          <p className="text-gray-600 font-semibold">Fetching shipment data...</p>
         </div>
       </div>
     );
@@ -108,22 +121,15 @@ function TrackingResultContent() {
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle size={32} className="text-[#D40511]" />
           </div>
-          <h2 className="text-xl font-black text-gray-900 mb-2">
-            Shipment Not Found
-          </h2>
+          <h2 className="text-xl font-black text-gray-900 mb-2">Shipment Not Found</h2>
           <p className="text-gray-500 text-sm mb-3">{error}</p>
           <p className="text-xs text-gray-400 mb-2">
             Tracking number searched:{" "}
-            <span className="font-mono font-bold text-gray-600">
-              {number}
-            </span>
+            <span className="font-mono font-bold text-gray-600">{number}</span>
           </p>
           <p className="text-xs text-gray-400 mb-6">
             Need help? Contact{" "}
-            <a
-              href="mailto:support@clearrouteglobal.com"
-              className="text-[#D40511] font-semibold hover:underline"
-            >
+            <a href="mailto:support@clearrouteglobal.com" className="text-[#D40511] font-semibold hover:underline">
               support@clearrouteglobal.com
             </a>
           </p>
@@ -142,13 +148,12 @@ function TrackingResultContent() {
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto">
 
-        {/* Back button */}
+        {/* Back */}
         <button
           onClick={() => router.push("/track")}
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#D40511] mb-6 transition-colors font-semibold"
         >
-          <ArrowLeft size={16} />
-          Back to tracking
+          <ArrowLeft size={16} /> Back to tracking
         </button>
 
         {/* Header */}
@@ -159,27 +164,16 @@ function TrackingResultContent() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">
-                Tracking Number
-              </p>
-              <p className="font-mono font-black text-xl text-gray-900">
-                {shipment.trackingNumber}
-              </p>
-              <p className="text-xs text-gray-400 mt-1">
-                ClearRoute Global Logistics — Shipment Status
-              </p>
+              <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Tracking Number</p>
+              <p className="font-mono font-black text-xl text-gray-900">{shipment.trackingNumber}</p>
+              <p className="text-xs text-gray-400 mt-1">Trac Global Logistics — Shipment Status</p>
             </div>
             <span
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${
-                statusColors[shipment.currentStatus] ??
-                "bg-gray-100 text-gray-700"
+                statusColors[shipment.currentStatus] ?? "bg-gray-100 text-gray-700"
               }`}
             >
-              {shipment.currentStatus === "Delivered" ? (
-                <CheckCircle2 size={14} />
-              ) : (
-                <Clock size={14} />
-              )}
+              {shipment.currentStatus === "Delivered" ? <CheckCircle2 size={14} /> : <Clock size={14} />}
               {shipment.currentStatus}
             </span>
           </div>
@@ -187,7 +181,7 @@ function TrackingResultContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-          {/* Left — Shipment details */}
+          {/* Left — details */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -196,26 +190,20 @@ function TrackingResultContent() {
           >
             {/* Sender */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">
-                Sender
-              </h3>
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">Sender</h3>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
                   <User size={14} className="text-[#D40511]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-gray-900">
-                    {shipment.senderName}
-                  </p>
-                  {"senderPhone" in shipment && shipment.senderPhone && (
+                  <p className="font-bold text-sm text-gray-900">{shipment.senderName}</p>
+                  {shipment.senderPhone && (
                     <p className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-                      <Phone size={10} className="shrink-0" />
-                      {(shipment as Shipment & { senderPhone: string }).senderPhone}
+                      <Phone size={10} className="shrink-0" /> {shipment.senderPhone}
                     </p>
                   )}
                   <p className="text-xs text-gray-500 mt-0.5 flex items-start gap-1">
-                    <MapPin size={10} className="mt-0.5 shrink-0" />
-                    {shipment.senderAddress}
+                    <MapPin size={10} className="mt-0.5 shrink-0" /> {shipment.senderAddress}
                   </p>
                 </div>
               </div>
@@ -223,26 +211,20 @@ function TrackingResultContent() {
 
             {/* Receiver */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">
-                Recipient
-              </h3>
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">Recipient</h3>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center shrink-0">
                   <User size={14} className="text-yellow-700" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-gray-900">
-                    {shipment.receiverName}
-                  </p>
-                  {"receiverPhone" in shipment && shipment.receiverPhone && (
+                  <p className="font-bold text-sm text-gray-900">{shipment.receiverName}</p>
+                  {shipment.receiverPhone && (
                     <p className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-                      <Phone size={10} className="shrink-0" />
-                      {(shipment as Shipment & { receiverPhone: string }).receiverPhone}
+                      <Phone size={10} className="shrink-0" /> {shipment.receiverPhone}
                     </p>
                   )}
                   <p className="text-xs text-gray-500 mt-0.5 flex items-start gap-1">
-                    <MapPin size={10} className="mt-0.5 shrink-0" />
-                    {shipment.receiverAddress}
+                    <MapPin size={10} className="mt-0.5 shrink-0" /> {shipment.receiverAddress}
                   </p>
                 </div>
               </div>
@@ -250,28 +232,24 @@ function TrackingResultContent() {
 
             {/* Package info */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">
-                Package Info
-              </h3>
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4">Package Info</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
                   <Package size={14} className="text-gray-400 shrink-0" />
-                  <span className="text-gray-600">
-                    {shipment.packageDescription}
-                  </span>
+                  <span className="text-gray-600">{shipment.packageDescription}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Weight size={14} className="text-gray-400 shrink-0" />
                   <span className="text-gray-600">{shipment.weight}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar size={14} className="text-gray-400 shrink-0" />
-                  <span className="text-gray-600">
-                    Est. Delivery:{" "}
-                    <span className="font-bold text-gray-900">
-                      {shipment.estimatedDelivery}
-                    </span>
-                  </span>
+                <div className="flex items-start gap-2 text-sm">
+                  <Calendar size={14} className="text-gray-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-gray-500 text-xs">Est. Delivery:</span>
+                    <p className="font-bold text-gray-900 text-xs mt-0.5">
+                      {formatEstDelivery(shipment.estimatedDelivery, shipment.estimatedDeliveryTime)}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -284,13 +262,8 @@ function TrackingResultContent() {
             transition={{ delay: 0.15 }}
             className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
           >
-            <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-6">
-              Tracking History
-            </h3>
-            <TrackingTimeline
-              events={shipment.events}
-              currentStatus={shipment.currentStatus}
-            />
+            <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-6">Tracking History</h3>
+            <TrackingTimeline events={shipment.events} currentStatus={shipment.currentStatus} />
           </motion.div>
         </div>
       </div>
@@ -300,13 +273,11 @@ function TrackingResultContent() {
 
 export default function TrackingResultPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 size={40} className="animate-spin text-[#D40511]" />
-        </div>
-      }
-    >
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 size={40} className="animate-spin text-[#D40511]" />
+      </div>
+    }>
       <TrackingResultContent />
     </Suspense>
   );

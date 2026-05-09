@@ -10,6 +10,7 @@ import {
   MapPin,
   Clock,
   ShieldAlert,
+  Calendar,
 } from "lucide-react";
 import type { TrackingEvent, ShipmentStatus } from "@/lib/shipments";
 
@@ -52,6 +53,40 @@ const CUSTOMS_RESOLVED = new Set([
   "Released from Customs",
 ]);
 
+/**
+ * Format a date string (YYYY-MM-DD) to a human-readable string.
+ * e.g. "2026-01-25" → "Saturday, 25 January 2026"
+ */
+function formatDate(dateStr: string): string {
+  if (!dateStr) return "";
+  try {
+    return new Date(dateStr + "T00:00:00").toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
+ * Format a time string (HH:MM) to 12-hour format.
+ * e.g. "14:30" → "2:30 PM"
+ */
+function formatTime(timeStr: string): string {
+  if (!timeStr) return "";
+  try {
+    const [h, m] = timeStr.split(":").map(Number);
+    const ampm = h >= 12 ? "PM" : "AM";
+    const hour = h % 12 || 12;
+    return `${hour}:${String(m).padStart(2, "0")} ${ampm}`;
+  } catch {
+    return timeStr;
+  }
+}
+
 interface Props {
   events: TrackingEvent[];
   currentStatus: ShipmentStatus;
@@ -60,49 +95,42 @@ interface Props {
 export default function TrackingTimeline({ events, currentStatus }: Props) {
   const currentIdx = statusOrder.indexOf(currentStatus);
 
+  // Sort events by date+time descending for display (latest first)
+  const sortedEvents = [...events].sort((a, b) => {
+    const da = new Date(`${a.eventDate || "2000-01-01"}T${a.eventTime || "00:00"}`).getTime();
+    const db = new Date(`${b.eventDate || "2000-01-01"}T${b.eventTime || "00:00"}`).getTime();
+    return db - da;
+  });
+
   return (
     <div className="w-full">
 
-      {/* Progress bar — standard flow only */}
+      {/* ── Progress bar — standard flow only ── */}
       {currentIdx >= 0 && (
         <div className="hidden sm:flex items-center justify-between mb-8 relative">
           <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 z-0">
             <motion.div
               className="h-full bg-[#D40511]"
               initial={{ width: "0%" }}
-              animate={{
-                width: `${Math.max(
-                  0,
-                  (currentIdx / (statusOrder.length - 1)) * 100
-                )}%`,
-              }}
+              animate={{ width: `${Math.max(0, (currentIdx / (statusOrder.length - 1)) * 100)}%` }}
               transition={{ duration: 1, ease: "easeOut" }}
             />
           </div>
           {statusOrder.map((status, idx) => {
             const done = idx <= currentIdx;
             return (
-              <div
-                key={status}
-                className="flex flex-col items-center z-10 gap-2"
-              >
+              <div key={status} className="flex flex-col items-center z-10 gap-2">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: idx * 0.15 }}
                   className={`w-10 h-10 rounded-full flex items-center justify-center border-2 font-bold text-sm ${
-                    done
-                      ? "bg-[#D40511] border-[#D40511] text-white"
-                      : "bg-white border-gray-300 text-gray-400"
+                    done ? "bg-[#D40511] border-[#D40511] text-white" : "bg-white border-gray-300 text-gray-400"
                   }`}
                 >
                   {statusIcons[status]}
                 </motion.div>
-                <span
-                  className={`text-xs font-semibold text-center max-w-[80px] leading-tight ${
-                    done ? "text-[#D40511]" : "text-gray-400"
-                  }`}
-                >
+                <span className={`text-xs font-semibold text-center max-w-[80px] leading-tight ${done ? "text-[#D40511]" : "text-gray-400"}`}>
                   {status}
                 </span>
               </div>
@@ -111,69 +139,47 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
         </div>
       )}
 
-      {/* Customs hold banner */}
+      {/* ── Customs hold banner ── */}
       {CUSTOMS_STATUSES.has(currentStatus) && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3"
         >
-          <ShieldAlert
-            size={18}
-            className="text-amber-600 mt-0.5 shrink-0"
-          />
+          <ShieldAlert size={18} className="text-amber-600 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-bold text-amber-800">
-              Shipment is currently in a hold or customs status
-            </p>
+            <p className="text-sm font-bold text-amber-800">Shipment is currently in a hold or customs status</p>
             <p className="text-xs text-amber-700 mt-0.5">
-              Our team is monitoring this shipment. If action is required
-              from you, you will be contacted at your registered email. For
-              urgent help, contact{" "}
-              <a
-                href="mailto:support@clearrouteglobal.com"
-                className="font-bold underline"
-              >
-                support@clearrouteglobal.com
-              </a>{" "}
+              Our team is monitoring this shipment. If action is required from you, you will be contacted at your
+              registered email. For urgent help, contact{" "}
+              <a href="mailto:support@clearrouteglobal.com" className="font-bold underline">support@clearrouteglobal.com</a>{" "}
               or call{" "}
-              <a
-                href="tel:+46766920874"
-                className="font-bold underline"
-              >
-                +46 766 920 874
-              </a>
+              <a href="tel:+46766920874" className="font-bold underline">+46 766 920 874</a>
             </p>
           </div>
         </motion.div>
       )}
 
-      {/* Customs cleared banner */}
+      {/* ── Customs cleared banner ── */}
       {CUSTOMS_RESOLVED.has(currentStatus) && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 flex items-start gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3"
         >
-          <CheckCircle2
-            size={18}
-            className="text-emerald-600 mt-0.5 shrink-0"
-          />
+          <CheckCircle2 size={18} className="text-emerald-600 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm font-bold text-emerald-800">
-              Customs clearance completed
-            </p>
+            <p className="text-sm font-bold text-emerald-800">Customs clearance completed</p>
             <p className="text-xs text-emerald-700 mt-0.5">
-              Your shipment has been cleared by customs and is resuming its
-              journey to the destination.
+              Your shipment has been cleared by customs and is resuming its journey to the destination.
             </p>
           </div>
         </motion.div>
       )}
 
-      {/* Timeline events */}
+      {/* ── Timeline events ── */}
       <div className="space-y-0">
-        {[...events].reverse().map((event, idx) => {
+        {sortedEvents.map((event, idx) => {
           const isCustomsEvent = CUSTOMS_STATUSES.has(event.status);
           const isResolvedEvent = CUSTOMS_RESOLVED.has(event.status);
           const isLatest = idx === 0;
@@ -183,11 +189,11 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
               key={idx}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ delay: idx * 0.08 }}
               className="flex gap-4 relative"
             >
               {/* Connector line */}
-              {idx !== events.length - 1 && (
+              {idx !== sortedEvents.length - 1 && (
                 <div className="absolute left-[19px] top-10 bottom-0 w-0.5 bg-gray-200 z-0" />
               )}
 
@@ -208,46 +214,61 @@ export default function TrackingTimeline({ events, currentStatus }: Props) {
 
               {/* Content */}
               <div className="pb-8 flex-1">
+                {/* Status + Latest badge */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`text-sm font-bold ${
-                      isLatest && isCustomsEvent
-                        ? "text-amber-700"
-                        : isLatest && isResolvedEvent
-                        ? "text-emerald-700"
-                        : isLatest
-                        ? "text-[#D40511]"
-                        : "text-gray-700"
-                    }`}
-                  >
+                  <span className={`text-sm font-bold ${
+                    isLatest && isCustomsEvent ? "text-amber-700"
+                    : isLatest && isResolvedEvent ? "text-emerald-700"
+                    : isLatest ? "text-[#D40511]"
+                    : "text-gray-700"
+                  }`}>
                     {event.status}
                   </span>
                   {isLatest && (
-                    <span
-                      className={`text-white text-xs px-2 py-0.5 rounded-full font-semibold ${
-                        isCustomsEvent
-                          ? "bg-amber-500"
-                          : isResolvedEvent
-                          ? "bg-emerald-500"
-                          : "bg-[#D40511]"
-                      }`}
-                    >
+                    <span className={`text-white text-xs px-2 py-0.5 rounded-full font-semibold ${
+                      isCustomsEvent ? "bg-amber-500"
+                      : isResolvedEvent ? "bg-emerald-500"
+                      : "bg-[#D40511]"
+                    }`}>
                       Latest
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 mt-0.5">
-                  {event.description}
-                </p>
-                <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
-                  <span className="flex items-center gap-1">
-                    <MapPin size={11} />
-                    {event.location}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={11} />
-                    {event.timestamp}
-                  </span>
+
+                {/* Description */}
+                <p className="text-sm text-gray-600 mt-1">{event.description}</p>
+
+                {/* Location + Date + Time row */}
+                <div className="mt-2 space-y-1">
+                  {/* Location */}
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                    <MapPin size={11} className="text-gray-400 shrink-0" />
+                    <span>{event.location}</span>
+                  </div>
+
+                  {/* Date row */}
+                  {event.eventDate && (
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <Calendar size={11} className="text-gray-400 shrink-0" />
+                      <span className="font-medium">{formatDate(event.eventDate)}</span>
+                    </div>
+                  )}
+
+                  {/* Time row */}
+                  {event.eventTime && (
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                      <Clock size={11} className="text-gray-400 shrink-0" />
+                      <span className="font-medium">{formatTime(event.eventTime)}</span>
+                    </div>
+                  )}
+
+                  {/* Fallback: raw timestamp for old shipments that have no eventDate/eventTime */}
+                  {!event.eventDate && !event.eventTime && event.timestamp && (
+                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                      <Clock size={11} className="shrink-0" />
+                      <span>{event.timestamp}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
