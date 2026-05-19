@@ -75,6 +75,11 @@ interface EditEventForm {
   eventDate: string; eventTime: string;
 }
 
+interface EditDeliveryForm {
+  date: string;
+  time: string;
+}
+
 const emptyCreate: CreateForm = {
   senderName: "", senderPhone: "", senderAddress: "",
   receiverName: "", receiverPhone: "", receiverAddress: "",
@@ -90,10 +95,10 @@ const emptyUpdate: UpdateForm = {
 
 // ── LOGIN ──────────────────────────────────────────────────────────────────
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
-  const [password, setPassword]       = useState("");
+  const [password, setPassword]         = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError]             = useState("");
-  const [loading, setLoading]         = useState(false);
+  const [error, setError]               = useState("");
+  const [loading, setLoading]           = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,16 +235,13 @@ function StatusSelect({ value, onChange }: { value: ShipmentStatus; onChange: (v
 function EventsManagerModal({
   shipment,
   onClose,
-  onSaved,       // called with the fresh Shipment after any save/delete
+  onSaved,
 }: {
   shipment: Shipment;
   onClose: () => void;
   onSaved: (updated: Shipment) => void;
 }) {
-  // Keep a LOCAL copy of the shipment so the modal updates instantly
   const [localShipment, setLocalShipment] = useState<Shipment>(shipment);
-
-  // Sync if parent passes a new shipment object
   useEffect(() => { setLocalShipment(shipment); }, [shipment]);
 
   const [editingIdx, setEditingIdx]   = useState<number | null>(null);
@@ -263,85 +265,56 @@ function EventsManagerModal({
     });
   };
 
-  const cancelEdit = () => {
-    setEditingIdx(null);
-    setSaveError("");
-  };
+  const cancelEdit = () => { setEditingIdx(null); setSaveError(""); };
 
   const saveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingIdx === null) return;
     setSaving(true);
     setSaveError("");
-
-    const payload = {
-      mode:        "edit-event",
-      eventIndex:  editingIdx,          // exact array index in localShipment.events
-      status:      editForm.status,
-      location:    editForm.location,
-      description: editForm.description,
-      eventDate:   editForm.eventDate,
-      eventTime:   editForm.eventTime,
-    };
-
-    console.log("Sending edit-event payload:", JSON.stringify(payload));
-
     try {
       const res = await fetch(`/api/shipments/${localShipment.trackingNumber}`, {
         method:  "PATCH",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(payload),
+        body:    JSON.stringify({
+          mode:        "edit-event",
+          eventIndex:  editingIdx,
+          status:      editForm.status,
+          location:    editForm.location,
+          description: editForm.description,
+          eventDate:   editForm.eventDate,
+          eventTime:   editForm.eventTime,
+        }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        setSaveError(data.error || "Failed to save changes.");
-        return;
-      }
-
-      // Update local state instantly from API response
+      if (!res.ok) { setSaveError(data.error || "Failed to save changes."); return; }
       setLocalShipment(data.shipment);
       setEditingIdx(null);
       onSaved(data.shipment);
     } catch (err) {
       setSaveError("Network error. Please try again.");
       console.error("saveEdit error:", err);
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   };
 
   const deleteEvent = async (idx: number) => {
     if (!confirm(`Delete Event #${idx + 1}? This cannot be undone.`)) return;
     setDeletingIdx(idx);
-
     try {
-      const res = await fetch(
-        `/api/shipments/${localShipment.trackingNumber}/events`,
-        {
-          method:  "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body:    JSON.stringify({ eventIndex: idx }),
-        }
-      );
-
+      const res = await fetch(`/api/shipments/${localShipment.trackingNumber}/events`, {
+        method:  "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ eventIndex: idx }),
+      });
       const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error || "Failed to delete event.");
-        return;
-      }
-
+      if (!res.ok) { alert(data.error || "Failed to delete event."); return; }
       setLocalShipment(data.shipment);
       if (editingIdx === idx) setEditingIdx(null);
       onSaved(data.shipment);
     } catch (err) {
       alert("Network error. Please try again.");
       console.error("deleteEvent error:", err);
-    } finally {
-      setDeletingIdx(null);
-    }
+    } finally { setDeletingIdx(null); }
   };
 
   return (
@@ -352,7 +325,6 @@ function EventsManagerModal({
         exit={{ opacity: 0, scale: 0.95 }}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
       >
-        {/* Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
           <div>
             <h2 className="font-black text-gray-900 flex items-center gap-2">
@@ -369,18 +341,13 @@ function EventsManagerModal({
           {localShipment.events.length === 0 && (
             <p className="text-center text-gray-400 text-sm py-8">No events yet.</p>
           )}
-
-          {/* Render events in their stored order (index = position in array) */}
           {localShipment.events.map((ev, idx) => (
             <div key={idx}
               className={`border rounded-xl p-4 transition-colors ${
-                editingIdx === idx
-                  ? "border-blue-300 bg-blue-50"
-                  : "border-gray-100 bg-gray-50"
+                editingIdx === idx ? "border-blue-300 bg-blue-50" : "border-gray-100 bg-gray-50"
               }`}
             >
               {editingIdx === idx ? (
-                /* ── EDIT FORM ── */
                 <form onSubmit={saveEdit} className="space-y-3">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-xs font-black text-blue-700 uppercase tracking-wider">
@@ -390,22 +357,16 @@ function EventsManagerModal({
                       className="text-gray-400 hover:text-gray-600 text-xs underline"
                     >Cancel</button>
                   </div>
-
                   {saveError && (
                     <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                       <AlertCircle size={13} className="text-red-500 shrink-0" />
                       <p className="text-xs text-red-600">{saveError}</p>
                     </div>
                   )}
-
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5">Status *</label>
-                    <StatusSelect
-                      value={editForm.status}
-                      onChange={(v) => setEditForm((p) => ({ ...p, status: v }))}
-                    />
+                    <StatusSelect value={editForm.status} onChange={(v) => setEditForm((p) => ({ ...p, status: v }))} />
                   </div>
-
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5">Location *</label>
                     <input required type="text" value={editForm.location}
@@ -414,7 +375,6 @@ function EventsManagerModal({
                       placeholder="e.g. Lagos Airport, Nigeria"
                     />
                   </div>
-
                   <div>
                     <label className="block text-xs font-bold text-gray-700 mb-1.5">Description *</label>
                     <input required type="text" value={editForm.description}
@@ -423,7 +383,6 @@ function EventsManagerModal({
                       placeholder="e.g. Package arrived at sorting facility"
                     />
                   </div>
-
                   <div className="bg-white border border-blue-100 rounded-xl p-3">
                     <p className="text-xs font-black text-blue-700 uppercase tracking-wider mb-3 flex items-center gap-1">
                       <Clock size={11} /> Date &amp; Time
@@ -435,7 +394,6 @@ function EventsManagerModal({
                       onTimeChange={(v) => setEditForm((p) => ({ ...p, eventTime: v }))}
                     />
                   </div>
-
                   <button type="submit" disabled={saving}
                     className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
                   >
@@ -445,7 +403,6 @@ function EventsManagerModal({
                   </button>
                 </form>
               ) : (
-                /* ── EVENT DISPLAY ── */
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
@@ -483,24 +440,14 @@ function EventsManagerModal({
                       </span>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={() => startEdit(idx, ev)}
+                    <button onClick={() => startEdit(idx, ev)}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-semibold"
-                      title={`Edit Event #${idx + 1}`}
-                    >
-                      <PenLine size={12} /> Edit
-                    </button>
-                    <button
-                      onClick={() => deleteEvent(idx)}
-                      disabled={deletingIdx === idx}
+                    ><PenLine size={12} /> Edit</button>
+                    <button onClick={() => deleteEvent(idx)} disabled={deletingIdx === idx}
                       className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors text-xs font-semibold disabled:opacity-50"
-                      title={`Delete Event #${idx + 1}`}
                     >
-                      {deletingIdx === idx
-                        ? <Loader2 size={12} className="animate-spin" />
-                        : <Trash2 size={12} />}
+                      {deletingIdx === idx ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                       Delete
                     </button>
                   </div>
@@ -516,21 +463,27 @@ function EventsManagerModal({
 
 // ── MAIN DASHBOARD ─────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const [authenticated, setAuthenticated]   = useState(false);
-  const [checkingAuth, setCheckingAuth]     = useState(true);
-  const [shipments, setShipments]           = useState<Shipment[]>([]);
-  const [loading, setLoading]               = useState(true);
-  const [search, setSearch]                 = useState("");
-  const [showCreate, setShowCreate]         = useState(false);
-  const [createForm, setCreateForm]         = useState<CreateForm>(emptyCreate);
-  const [creating, setCreating]             = useState(false);
-  const [newTracking, setNewTracking]       = useState("");
-  const [copied, setCopied]                 = useState(false);
-  const [updateTarget, setUpdateTarget]     = useState<Shipment | null>(null);
-  const [updateForm, setUpdateForm]         = useState<UpdateForm>(emptyUpdate);
-  const [updating, setUpdating]             = useState(false);
-  const [eventsTarget, setEventsTarget]     = useState<Shipment | null>(null);
-  const [deletingId, setDeletingId]         = useState<string | null>(null);
+  const [authenticated, setAuthenticated]     = useState(false);
+  const [checkingAuth, setCheckingAuth]       = useState(true);
+  const [shipments, setShipments]             = useState<Shipment[]>([]);
+  const [loading, setLoading]                 = useState(true);
+  const [search, setSearch]                   = useState("");
+  const [showCreate, setShowCreate]           = useState(false);
+  const [createForm, setCreateForm]           = useState<CreateForm>(emptyCreate);
+  const [creating, setCreating]               = useState(false);
+  const [newTracking, setNewTracking]         = useState("");
+  const [copied, setCopied]                   = useState(false);
+  const [updateTarget, setUpdateTarget]       = useState<Shipment | null>(null);
+  const [updateForm, setUpdateForm]           = useState<UpdateForm>(emptyUpdate);
+  const [updating, setUpdating]               = useState(false);
+  const [eventsTarget, setEventsTarget]       = useState<Shipment | null>(null);
+  const [deletingId, setDeletingId]           = useState<string | null>(null);
+
+  // ── edit-delivery state ──────────────────────────────────────────────────
+  const [editDeliveryTarget, setEditDeliveryTarget] = useState<Shipment | null>(null);
+  const [editDeliveryForm, setEditDeliveryForm]     = useState<EditDeliveryForm>({ date: "", time: "" });
+  const [savingDelivery, setSavingDelivery]         = useState(false);
+  const [deliveryError, setDeliveryError]           = useState("");
 
   useEffect(() => {
     const auth = sessionStorage.getItem("admin_auth");
@@ -550,19 +503,19 @@ export default function AdminPage() {
 
   useEffect(() => { if (authenticated) fetchShipments(); }, [authenticated, fetchShipments]);
 
-  // Called by EventsManagerModal when an event is saved/deleted
   const handleEventSaved = useCallback((updatedShipment: Shipment) => {
-    // 1. Update the shipments list in the table
     setShipments((prev) =>
       prev.map((s) =>
         s.trackingNumber === updatedShipment.trackingNumber ? updatedShipment : s
       )
     );
-    // 2. Keep the modal's parent reference in sync
     setEventsTarget(updatedShipment);
   }, []);
 
-  const handleLogout = () => { sessionStorage.removeItem("admin_auth"); setAuthenticated(false); };
+  const handleLogout = () => {
+    sessionStorage.removeItem("admin_auth");
+    setAuthenticated(false);
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -610,6 +563,47 @@ export default function AdminPage() {
       fetchShipments();
     } catch { console.error("Delete failed"); }
     finally   { setDeletingId(null); }
+  };
+
+  // ── edit delivery handler ────────────────────────────────────────────────
+  const handleEditDelivery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editDeliveryTarget) return;
+    if (!editDeliveryForm.date) {
+      setDeliveryError("Please select a delivery date.");
+      return;
+    }
+    setSavingDelivery(true);
+    setDeliveryError("");
+    try {
+      const res = await fetch(
+        `/api/shipments/${editDeliveryTarget.trackingNumber}`,
+        {
+          method:  "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode:                  "edit-delivery",
+            estimatedDelivery:     editDeliveryForm.date,
+            estimatedDeliveryTime: editDeliveryForm.time,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setDeliveryError(data.error || "Failed to save.");
+        return;
+      }
+      setShipments((prev) =>
+        prev.map((s) =>
+          s.trackingNumber === data.shipment.trackingNumber ? data.shipment : s
+        )
+      );
+      setEditDeliveryTarget(null);
+    } catch {
+      setDeliveryError("Network error. Please try again.");
+    } finally {
+      setSavingDelivery(false);
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -775,20 +769,48 @@ export default function AdminPage() {
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 flex-wrap">
+                          {/* Add event */}
                           <button
                             onClick={() => {
                               setUpdateTarget(s);
-                              setUpdateForm({ ...emptyUpdate, status: s.currentStatus, eventDate: todayDate(), eventTime: nowTime() });
+                              setUpdateForm({
+                                ...emptyUpdate,
+                                status: s.currentStatus,
+                                eventDate: todayDate(),
+                                eventTime: nowTime(),
+                              });
                             }}
                             className="flex items-center gap-1 bg-blue-50 text-blue-600 px-2 py-1.5 rounded text-xs font-semibold hover:bg-blue-100 transition-colors"
                           ><Edit3 size={11} /> Update</button>
-                          <button onClick={() => setEventsTarget(s)}
+
+                          {/* Edit delivery date */}
+                          <button
+                            onClick={() => {
+                              setDeliveryError("");
+                              setEditDeliveryTarget(s);
+                              setEditDeliveryForm({
+                                date: s.estimatedDelivery     ?? "",
+                                time: s.estimatedDeliveryTime ?? "",
+                              });
+                            }}
+                            className="flex items-center gap-1 bg-green-50 text-green-600 px-2 py-1.5 rounded text-xs font-semibold hover:bg-green-100 transition-colors"
+                          ><Calendar size={11} /> Delivery</button>
+
+                          {/* Events manager */}
+                          <button
+                            onClick={() => setEventsTarget(s)}
                             className="flex items-center gap-1 bg-violet-50 text-violet-600 px-2 py-1.5 rounded text-xs font-semibold hover:bg-violet-100 transition-colors"
                           ><List size={11} /> Events</button>
-                          <button onClick={() => handleDelete(s.trackingNumber)} disabled={deletingId === s.trackingNumber}
+
+                          {/* Delete */}
+                          <button
+                            onClick={() => handleDelete(s.trackingNumber)}
+                            disabled={deletingId === s.trackingNumber}
                             className="flex items-center gap-1 bg-red-50 text-[#D40511] px-2 py-1.5 rounded text-xs font-semibold hover:bg-red-100 transition-colors disabled:opacity-50"
                           >
-                            {deletingId === s.trackingNumber ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                            {deletingId === s.trackingNumber
+                              ? <Loader2 size={11} className="animate-spin" />
+                              : <Trash2 size={11} />}
                             Delete
                           </button>
                         </div>
@@ -1091,6 +1113,127 @@ export default function AdminPage() {
             onClose={() => setEventsTarget(null)}
             onSaved={handleEventSaved}
           />
+        )}
+      </AnimatePresence>
+
+      {/* ── EDIT DELIVERY MODAL ── */}
+      <AnimatePresence>
+        {editDeliveryTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-sm"
+            >
+              {/* Header */}
+              <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="font-black text-gray-900 flex items-center gap-2">
+                  <Calendar size={16} className="text-green-500" />
+                  Edit Estimated Delivery
+                </h2>
+                <button
+                  onClick={() => setEditDeliveryTarget(null)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-5">
+                {/* Tracking number badge */}
+                <p className="text-xs text-gray-500 font-mono bg-gray-50 px-3 py-2 rounded mb-4">
+                  {editDeliveryTarget.trackingNumber}
+                </p>
+
+                {/* Current value */}
+                <div className="flex items-center gap-2 mb-4 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5">
+                  <Clock size={13} className="text-gray-400 shrink-0" />
+                  <div>
+                    <p className="text-xs text-gray-400 font-medium">Current estimated delivery</p>
+                    <p className="text-sm font-bold text-gray-700">
+                      {editDeliveryTarget.estimatedDelivery
+                        ? new Date(editDeliveryTarget.estimatedDelivery + "T00:00:00").toLocaleDateString("en-GB", {
+                            day: "numeric", month: "long", year: "numeric",
+                          })
+                        : "—"}
+                      {editDeliveryTarget.estimatedDeliveryTime
+                        ? (() => {
+                            const [h, m] = editDeliveryTarget.estimatedDeliveryTime.split(":").map(Number);
+                            const ampm = h >= 12 ? "PM" : "AM";
+                            return ` at ${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
+                          })()
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Error */}
+                {deliveryError && (
+                  <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+                    <AlertCircle size={13} className="text-red-500 shrink-0" />
+                    <p className="text-xs text-red-600">{deliveryError}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleEditDelivery} className="space-y-4">
+                  {/* Date & time pickers */}
+                  <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+                    <p className="text-xs font-black text-green-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                      <Calendar size={11} /> New Delivery Date &amp; Time
+                    </p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                          <span className="flex items-center gap-1"><Calendar size={11} /> Delivery Date *</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={editDeliveryForm.date}
+                          onChange={(e) => setEditDeliveryForm((p) => ({ ...p, date: e.target.value }))}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-green-500 transition-colors bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                          <span className="flex items-center gap-1"><Clock size={11} /> Delivery Time (optional)</span>
+                        </label>
+                        <input
+                          type="time"
+                          value={editDeliveryForm.time}
+                          onChange={(e) => setEditDeliveryForm((p) => ({ ...p, time: e.target.value }))}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-green-500 transition-colors bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Action buttons ── */}
+                  <div className="flex gap-3 pt-1">
+                    {/* CANCEL */}
+                    <button
+                      type="button"
+                      onClick={() => setEditDeliveryTarget(null)}
+                      className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-600 rounded-lg font-bold text-sm hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+
+                    {/* SAVE / OK */}
+                    <button
+                      type="submit"
+                      disabled={savingDelivery || !editDeliveryForm.date}
+                      className="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {savingDelivery
+                        ? <><Loader2 size={13} className="animate-spin" /> Saving...</>
+                        : <><CheckCheck size={13} /> Save Changes</>}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

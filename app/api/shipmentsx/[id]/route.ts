@@ -1,14 +1,14 @@
-// app/api/shipments/[id]/route.ts
+// app/api/shipmentsx/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
   redis,
-  shipmentKey,
-  shipmentsIndexKey,
-  buildTimestamp,
-  Shipment,
-  ShipmentStatus,
-  TrackingEvent,
-} from "@/lib/shipments";
+  shipmentXKey,
+  shipmentsXIndexKey,
+  buildTimestampX,
+  ShipmentX,
+  ShipmentXStatus,
+  TrackingEventX,
+} from "@/lib/shipmentsX";
 
 export async function GET(
   req: NextRequest,
@@ -17,22 +17,16 @@ export async function GET(
   try {
     const { id } = await params;
     const trackingNumber = id.toUpperCase().trim();
-    const shipment = await redis.get<Shipment>(shipmentKey(trackingNumber));
+    const shipment = await redis.get<ShipmentX>(shipmentXKey(trackingNumber));
 
     if (!shipment) {
-      return NextResponse.json(
-        { error: "Shipment not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Shipment not found." }, { status: 404 });
     }
 
     return NextResponse.json({ shipment });
   } catch (error) {
-    console.error("GET /api/shipments/[id] error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch shipment." },
-      { status: 500 }
-    );
+    console.error("GET /api/shipmentsx/[id] error:", error);
+    return NextResponse.json({ error: "Failed to fetch shipment." }, { status: 500 });
   }
 }
 
@@ -44,22 +38,27 @@ export async function PATCH(
     const { id } = await params;
     const trackingNumber = id.toUpperCase().trim();
 
-    const shipment = await redis.get<Shipment>(shipmentKey(trackingNumber));
+    const shipment = await redis.get<ShipmentX>(shipmentXKey(trackingNumber));
     if (!shipment) {
-      return NextResponse.json(
-        { error: "Shipment not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Shipment not found." }, { status: 404 });
     }
 
     const body = await req.json();
 
-    // ── MODE 1: Edit an existing event by index ──────────────────────────
+    // ── MODE: edit an existing event in-place ──────────────────────────────
     if (body.mode === "edit-event") {
-      const { eventIndex, status, location, description, eventDate, eventTime } = body;
+      const {
+        eventIndex,
+        status,
+        location,
+        description,
+        eventDate,
+        eventTime,
+      } = body;
 
       if (
         eventIndex === undefined ||
+        eventIndex === null ||
         !status ||
         !location ||
         !description ||
@@ -67,46 +66,58 @@ export async function PATCH(
         !eventTime
       ) {
         return NextResponse.json(
-          { error: "eventIndex, status, location, description, eventDate and eventTime are required." },
+          {
+            error:
+              "eventIndex, status, location, description, eventDate and eventTime are all required.",
+          },
           { status: 400 }
         );
       }
 
-      const events = [...shipment.events];
-      if (eventIndex < 0 || eventIndex >= events.length) {
+      const idx = Number(eventIndex);
+
+      if (isNaN(idx) || idx < 0 || idx >= shipment.events.length) {
         return NextResponse.json(
-          { error: "Invalid eventIndex." },
+          { error: `Invalid eventIndex: ${eventIndex}` },
           { status: 400 }
         );
       }
 
-      events[eventIndex] = {
-        status: status as ShipmentStatus,
-        location,
-        description,
-        eventDate,
-        eventTime,
-        timestamp: buildTimestamp(eventDate, eventTime),
-      };
-
-      // Recalculate currentStatus from the latest event (by date/time)
-      const sorted = [...events].sort((a, b) => {
-        const da = new Date(`${a.eventDate}T${a.eventTime}`).getTime();
-        const db = new Date(`${b.eventDate}T${b.eventTime}`).getTime();
-        return db - da;
+      const updatedEvents: TrackingEventX[] = shipment.events.map((ev, i) => {
+        if (i === idx) {
+          return {
+            status: status as ShipmentXStatus,
+            location,
+            description,
+            eventDate,
+            eventTime,
+            timestamp: buildTimestampX(eventDate, eventTime),
+          };
+        }
+        return ev;
       });
 
-      const updated: Shipment = {
+      const latestEvent = [...updatedEvents].reduce((latest, ev) => {
+        const evTime = new Date(
+          `${ev.eventDate || "2000-01-01"}T${ev.eventTime || "00:00"}`
+        ).getTime();
+        const latestTime = new Date(
+          `${latest.eventDate || "2000-01-01"}T${latest.eventTime || "00:00"}`
+        ).getTime();
+        return evTime > latestTime ? ev : latest;
+      });
+
+      const updated: ShipmentX = {
         ...shipment,
-        currentStatus: sorted[0].status,
-        events,
+        currentStatus: latestEvent.status,
+        events: updatedEvents,
       };
 
-      await redis.set(shipmentKey(trackingNumber), updated);
+      await redis.set(shipmentXKey(trackingNumber), updated);
       return NextResponse.json({ shipment: updated });
     }
 
-    // ── MODE 2: Add a new tracking event ─────────────────────────────────
+    // ── MODE: add a brand-new tracking event ───────────────────────────────
     const { status, location, description, eventDate, eventTime } = body;
 
     if (!status || !location || !description) {
@@ -119,10 +130,10 @@ export async function PATCH(
     const evDate = eventDate || new Date().toISOString().slice(0, 10);
     const evTime = eventTime || new Date().toTimeString().slice(0, 5);
 
-    const newEvent: TrackingEvent = {
-      status: status as ShipmentStatus,
+    const newEvent: TrackingEventX = {
+      status: status as ShipmentXStatus,
       location,
-      timestamp: buildTimestamp(evDate, evTime),
+      timestamp: buildTimestampX(evDate, evTime),
       eventDate: evDate,
       eventTime: evTime,
       description,
@@ -130,27 +141,27 @@ export async function PATCH(
 
     const updatedEvents = [...shipment.events, newEvent];
 
-    // currentStatus = the event with the latest date+time
-    const sorted = [...updatedEvents].sort((a, b) => {
-      const da = new Date(`${a.eventDate || "2000-01-01"}T${a.eventTime || "00:00"}`).getTime();
-      const db = new Date(`${b.eventDate || "2000-01-01"}T${b.eventTime || "00:00"}`).getTime();
-      return db - da;
+    const latestEvent = [...updatedEvents].reduce((latest, ev) => {
+      const evTime = new Date(
+        `${ev.eventDate || "2000-01-01"}T${ev.eventTime || "00:00"}`
+      ).getTime();
+      const latestTime = new Date(
+        `${latest.eventDate || "2000-01-01"}T${latest.eventTime || "00:00"}`
+      ).getTime();
+      return evTime > latestTime ? ev : latest;
     });
 
-    const updated: Shipment = {
+    const updated: ShipmentX = {
       ...shipment,
-      currentStatus: sorted[0].status,
+      currentStatus: latestEvent.status,
       events: updatedEvents,
     };
 
-    await redis.set(shipmentKey(trackingNumber), updated);
+    await redis.set(shipmentXKey(trackingNumber), updated);
     return NextResponse.json({ shipment: updated });
   } catch (error) {
-    console.error("PATCH /api/shipments/[id] error:", error);
-    return NextResponse.json(
-      { error: "Failed to update shipment." },
-      { status: 500 }
-    );
+    console.error("PATCH /api/shipmentsx/[id] error:", error);
+    return NextResponse.json({ error: "Failed to update shipment." }, { status: 500 });
   }
 }
 
@@ -162,23 +173,17 @@ export async function DELETE(
     const { id } = await params;
     const trackingNumber = id.toUpperCase().trim();
 
-    const exists = await redis.get(shipmentKey(trackingNumber));
+    const exists = await redis.get(shipmentXKey(trackingNumber));
     if (!exists) {
-      return NextResponse.json(
-        { error: "Shipment not found." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Shipment not found." }, { status: 404 });
     }
 
-    await redis.del(shipmentKey(trackingNumber));
-    await redis.srem(shipmentsIndexKey, trackingNumber);
+    await redis.del(shipmentXKey(trackingNumber));
+    await redis.srem(shipmentsXIndexKey, trackingNumber);
 
     return NextResponse.json({ message: "Shipment deleted." });
   } catch (error) {
-    console.error("DELETE /api/shipments/[id] error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete shipment." },
-      { status: 500 }
-    );
+    console.error("DELETE /api/shipmentsx/[id] error:", error);
+    return NextResponse.json({ error: "Failed to delete shipment." }, { status: 500 });
   }
 }

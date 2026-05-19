@@ -56,7 +56,6 @@ export async function PATCH(
         eventTime,
       } = body;
 
-      // Validate
       if (
         eventIndex === undefined ||
         eventIndex === null ||
@@ -79,12 +78,13 @@ export async function PATCH(
 
       if (isNaN(idx) || idx < 0 || idx >= shipment.events.length) {
         return NextResponse.json(
-          { error: `Invalid eventIndex: ${eventIndex}. Shipment has ${shipment.events.length} events.` },
+          {
+            error: `Invalid eventIndex: ${eventIndex}. Shipment has ${shipment.events.length} events.`,
+          },
           { status: 400 }
         );
       }
 
-      // Build updated events array — replace only the target index
       const updatedEvents: TrackingEvent[] = shipment.events.map((ev, i) => {
         if (i === idx) {
           return {
@@ -99,7 +99,6 @@ export async function PATCH(
         return ev;
       });
 
-      // Recalculate currentStatus = status of the chronologically LATEST event
       const latestEvent = [...updatedEvents].reduce((latest, ev) => {
         const evTime = new Date(
           `${ev.eventDate || "2000-01-01"}T${ev.eventTime || "00:00"}`
@@ -114,6 +113,27 @@ export async function PATCH(
         ...shipment,
         currentStatus: latestEvent.status,
         events: updatedEvents,
+      };
+
+      await redis.set(shipmentKey(trackingNumber), updated);
+      return NextResponse.json({ shipment: updated });
+    }
+
+    // ── MODE: edit estimated delivery date & time ──────────────────────────
+    if (body.mode === "edit-delivery") {
+      const { estimatedDelivery, estimatedDeliveryTime } = body;
+
+      if (!estimatedDelivery) {
+        return NextResponse.json(
+          { error: "estimatedDelivery date is required." },
+          { status: 400 }
+        );
+      }
+
+      const updated: Shipment = {
+        ...shipment,
+        estimatedDelivery,
+        estimatedDeliveryTime: estimatedDeliveryTime ?? "",
       };
 
       await redis.set(shipmentKey(trackingNumber), updated);
@@ -144,7 +164,6 @@ export async function PATCH(
 
     const updatedEvents = [...shipment.events, newEvent];
 
-    // currentStatus = the event with the latest date+time
     const latestEvent = [...updatedEvents].reduce((latest, ev) => {
       const evTime = new Date(
         `${ev.eventDate || "2000-01-01"}T${ev.eventTime || "00:00"}`
