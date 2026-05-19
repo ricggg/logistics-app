@@ -1,7 +1,7 @@
 // lib/shipmentsX.ts
 import { Redis } from "@upstash/redis";
 
-export type ShipmentStatus =
+export type ShipmentXStatus =
   | "Order Placed"
   | "Picked Up"
   | "In Transit"
@@ -17,14 +17,16 @@ export type ShipmentStatus =
   | "Delivered"
   | "Exception";
 
-export interface TrackingEvent {
-  status: ShipmentStatus;
+export interface TrackingEventX {
+  status: ShipmentXStatus;
   location: string;
-  timestamp: string;
+  timestamp: string;   // display string e.g. "25/01/2026, 14:30"
+  eventDate: string;   // ISO date  e.g. "2026-01-25"
+  eventTime: string;   // 24h time  e.g. "14:30"
   description: string;
 }
 
-export interface Shipment {
+export interface ShipmentX {
   trackingNumber: string;
   senderName: string;
   senderPhone: string;
@@ -35,8 +37,9 @@ export interface Shipment {
   packageDescription: string;
   weight: string;
   estimatedDelivery: string;
-  currentStatus: ShipmentStatus;
-  events: TrackingEvent[];
+  estimatedDeliveryTime: string; // e.g. "14:00"
+  currentStatus: ShipmentXStatus;
+  events: TrackingEventX[];
   createdAt: string;
 }
 
@@ -54,4 +57,23 @@ export function generateTrackingNumberX(): string {
     chars.charAt(Math.floor(Math.random() * chars.length))
   ).join("");
   return `CRX-2026-${random}`;
+}
+
+/**
+ * Build a human-readable timestamp from a date string + time string.
+ * Falls back to "now" if either is missing.
+ */
+export function buildTimestampX(date: string, time: string): string {
+  if (date && time) {
+    const dt = new Date(`${date}T${time}:00`);
+    return dt.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
+  return new Date().toLocaleString("en-GB");
 }

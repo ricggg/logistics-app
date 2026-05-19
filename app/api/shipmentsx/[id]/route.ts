@@ -78,7 +78,9 @@ export async function PATCH(
 
       if (isNaN(idx) || idx < 0 || idx >= shipment.events.length) {
         return NextResponse.json(
-          { error: `Invalid eventIndex: ${eventIndex}` },
+          {
+            error: `Invalid eventIndex: ${eventIndex}. Shipment has ${shipment.events.length} events.`,
+          },
           { status: 400 }
         );
       }
@@ -111,6 +113,27 @@ export async function PATCH(
         ...shipment,
         currentStatus: latestEvent.status,
         events: updatedEvents,
+      };
+
+      await redis.set(shipmentXKey(trackingNumber), updated);
+      return NextResponse.json({ shipment: updated });
+    }
+
+    // ── MODE: edit estimated delivery date & time ──────────────────────────
+    if (body.mode === "edit-delivery") {
+      const { estimatedDelivery, estimatedDeliveryTime } = body;
+
+      if (!estimatedDelivery) {
+        return NextResponse.json(
+          { error: "estimatedDelivery date is required." },
+          { status: 400 }
+        );
+      }
+
+      const updated: ShipmentX = {
+        ...shipment,
+        estimatedDelivery,
+        estimatedDeliveryTime: estimatedDeliveryTime ?? "",
       };
 
       await redis.set(shipmentXKey(trackingNumber), updated);
