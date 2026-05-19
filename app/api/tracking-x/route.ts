@@ -1,6 +1,6 @@
 // app/api/tracking-x/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { redis, shipmentXKey, Shipment } from "@/lib/shipmentsX";
+import { redis, shipmentXKey, ShipmentX } from "@/lib/shipmentsX";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const shipment = await redis.get<Shipment>(shipmentXKey(number));
+    const shipment = await redis.get<ShipmentX>(shipmentXKey(number));
 
     if (!shipment) {
       return NextResponse.json(
@@ -24,9 +24,10 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ shipment });
-  } catch {
+  } catch (error) {
+    console.error("GET /api/tracking-x error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch shipment." },
+      { error: "Failed to fetch tracking data." },
       { status: 500 }
     );
   }

@@ -5,31 +5,27 @@ import {
   shipmentXKey,
   shipmentsXIndexKey,
   generateTrackingNumberX,
-  Shipment,
-  TrackingEvent,
+  buildTimestampX,
+  ShipmentX,
+  ShipmentXStatus,
+  TrackingEventX,
 } from "@/lib/shipmentsX";
 
 export async function GET() {
   try {
-    const ids = await redis.lrange(shipmentsXIndexKey, 0, -1);
+    const trackingNumbers = await redis.smembers(shipmentsXIndexKey);
+    const shipments: ShipmentX[] = [];
 
-    if (!ids || ids.length === 0) {
-      return NextResponse.json({ shipments: [] });
+    for (const number of trackingNumbers) {
+      const shipment = await redis.get<ShipmentX>(shipmentXKey(number));
+      if (shipment) {
+        shipments.push(shipment);
+      }
     }
 
-    const shipments = await Promise.all(
-      ids.map((id) => redis.get<Shipment>(shipmentXKey(id)))
-    );
-
-    const valid = shipments
-      .filter((s): s is Shipment => s !== null)
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-
-    return NextResponse.json({ shipments: valid });
-  } catch {
+    return NextResponse.json({ shipments });
+  } catch (error) {
+    console.error("GET /api/shipmentsx error:", error);
     return NextResponse.json(
       { error: "Failed to fetch shipments." },
       { status: 500 }
@@ -40,7 +36,6 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
     const {
       senderName,
       senderPhone,
@@ -51,8 +46,12 @@ export async function POST(req: NextRequest) {
       packageDescription,
       weight,
       estimatedDelivery,
+      estimatedDeliveryTime,
+      orderDate,
+      orderTime,
     } = body;
 
+    // Validate required fields
     if (
       !senderName ||
       !senderPhone ||
@@ -65,22 +64,25 @@ export async function POST(req: NextRequest) {
       !estimatedDelivery
     ) {
       return NextResponse.json(
-        { error: "All fields are required." },
+        { error: "Missing required fields." },
         { status: 400 }
       );
     }
 
     const trackingNumber = generateTrackingNumberX();
-    const now = new Date().toISOString();
+    const evDate = orderDate || new Date().toISOString().slice(0, 10);
+    const evTime = orderTime || new Date().toTimeString().slice(0, 5);
 
-    const firstEvent: TrackingEvent = {
+    const initialEvent: TrackingEventX = {
       status: "Order Placed",
       location: senderAddress,
-      timestamp: new Date().toLocaleString("en-GB"),
-      description: "Shipment order created and confirmed.",
+      timestamp: buildTimestampX(evDate, evTime),
+      eventDate: evDate,
+      eventTime: evTime,
+      description: "Order has been placed and is being prepared for shipment",
     };
 
-    const shipment: Shipment = {
+    const shipment: ShipmentX = {
       trackingNumber,
       senderName,
       senderPhone,
@@ -91,16 +93,18 @@ export async function POST(req: NextRequest) {
       packageDescription,
       weight,
       estimatedDelivery,
+      estimatedDeliveryTime: estimatedDeliveryTime || "",
       currentStatus: "Order Placed",
-      events: [firstEvent],
-      createdAt: now,
+      events: [initialEvent],
+      createdAt: new Date().toISOString(),
     };
 
     await redis.set(shipmentXKey(trackingNumber), shipment);
-    await redis.lpush(shipmentsXIndexKey, trackingNumber);
+    await redis.sadd(shipmentsXIndexKey, trackingNumber);
 
     return NextResponse.json({ trackingNumber, shipment }, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("POST /api/shipmentsx error:", error);
     return NextResponse.json(
       { error: "Failed to create shipment." },
       { status: 500 }
